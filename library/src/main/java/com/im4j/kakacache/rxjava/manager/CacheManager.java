@@ -70,22 +70,4 @@ public abstract class CacheManager {
         }
     }
 
-
-
-    /**
-     * 构造器
-     */
-    public static abstract class Builder {
-        CacheCore cache;
-
-        public Builder(CacheCore cache) {
-            this.cache = cache;
-        }
-
-        public RxJavaCacheManager.Builder rxjava() {
-            return new RxJavaCacheManager.Builder(cache);
-        }
-
-    }
-
 }

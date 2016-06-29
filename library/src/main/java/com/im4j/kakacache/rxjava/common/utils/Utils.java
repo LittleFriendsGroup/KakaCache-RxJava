@@ -24,6 +24,15 @@ public final class Utils {
         }
         return obj;
     }
+    /**
+     * 不为空
+     */
+    public static <T> T checkNotNull(T obj, String message) {
+        if (obj == null) {
+            throw new NullException(message);
+        }
+        return obj;
+    }
 
     /**
      * 不小于0

@@ -1,7 +1,6 @@
 package com.im4j.kakacache.rxjava.manager;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
-import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 
@@ -12,7 +11,7 @@ import rx.schedulers.Schedulers;
  * RxJava模式缓存管理
  * @version alafighting 2016-04
  */
-public class RxJavaCacheManager extends CacheManager {
+public class RxCacheManager extends CacheManager {
 
     private static abstract class SimpleSubscribe<T> implements rx.Observable.OnSubscribe<T> {
         @Override
@@ -30,7 +29,7 @@ public class RxJavaCacheManager extends CacheManager {
     }
 
 
-    public RxJavaCacheManager(CacheCore cache) {
+    public RxCacheManager(CacheCore cache) {
         super(cache);
     }
 
@@ -43,9 +42,9 @@ public class RxJavaCacheManager extends CacheManager {
             @Override
             void execute(Subscriber<? super T> subscriber) {
                 T value = _load(key);
-                if (value == null) {
-                    subscriber.onError(new NotFoundException("找不到缓存’"+key+"'"));
-                }
+//                if (value == null) {
+//                    subscriber.onError(new NotFoundException("找不到缓存’"+key+"'"));
+//                }
                 subscriber.onNext(value);
             }
         }).subscribeOn(Schedulers.computation());
@@ -105,21 +104,6 @@ public class RxJavaCacheManager extends CacheManager {
                 subscriber.onNext(true);
             }
         });
-    }
-
-
-
-    /**
-     * 构造器
-     */
-    public static class Builder extends CacheManager.Builder {
-        public Builder(CacheCore cache) {
-            super(cache);
-        }
-
-        public RxJavaCacheManager create() {
-            return new RxJavaCacheManager(cache);
-        }
     }
 
 }
