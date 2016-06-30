@@ -20,7 +20,6 @@ public class RxCacheManager extends CacheManager {
                 execute(subscriber);
             } catch (Throwable e) {
                 onError(subscriber, e);
-                return;
             }
 
             subscriber.onCompleted();

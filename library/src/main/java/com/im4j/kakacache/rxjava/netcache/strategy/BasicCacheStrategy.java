@@ -15,14 +15,15 @@ import rx.Observable;
 abstract class BasicCacheStrategy<T> implements CacheStrategy {
 
     Observable<ResultData<T>> loadCache(String key) {
+        Log.e("Strategy", "loadCache  key="+key);
         return RxRemoteCache.load(key).map(it -> new ResultData<>(ResultFrom.Cache, key, (T) it));
     }
 
     Observable<ResultData<T>> loadRemote(String key, Observable<T> source) {
         return source.map(it -> {
+            Log.e("Strategy", "save  key="+key+", value="+it);
             RxRemoteCache.save(key, it).subscribe(status -> Log.e("save status", "status="+status) );
-            Log.e("transformer", "save  key="+key+", value="+it);
-            return new ResultData<T>(ResultFrom.Remote, key, it);
+            return new ResultData<>(ResultFrom.Remote, key, it);
         });
     }
 
