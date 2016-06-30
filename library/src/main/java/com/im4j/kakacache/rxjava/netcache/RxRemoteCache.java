@@ -12,6 +12,7 @@ import com.im4j.kakacache.rxjava.core.disk.storage.FileDiskStorage;
 import com.im4j.kakacache.rxjava.core.memory.journal.LRUMemoryJournal;
 import com.im4j.kakacache.rxjava.core.memory.storage.SimpleMemoryStorage;
 import com.im4j.kakacache.rxjava.manager.RxCacheManager;
+import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import java.io.File;
 
@@ -59,13 +60,30 @@ public class RxRemoteCache {
     }
 
     public static <T> rx.Observable<Boolean> save(String key, T value) {
-        return save(key, value, CacheTarget.MemoryDisk);
+        return save(key, value, CacheTarget.MemoryAndDisk);
     }
 
 
 
-    public static <T> Observable<CacheTransformer.CacheData<T>> cache(Observable<T> observable, String key) {
-        return observable.compose(new CacheTransformer<>(key));
+    public static <T> Observable.Transformer<T, ResultData<T>> transformer(String key, CacheStrategy strategy) {
+        return new CacheTransformer<T>(key, strategy);
+    }
+
+
+
+    private static class CacheTransformer<T> implements Observable.Transformer<T, ResultData<T>> {
+        private String key;
+        private CacheStrategy<T> strategy;
+
+        public CacheTransformer(String key, CacheStrategy<T> strategy) {
+            this.key = key;
+            this.strategy = strategy;
+        }
+
+        @Override
+        public Observable<ResultData<T>> call(Observable<T> source) {
+            return strategy.execute(key, source);
+        }
     }
 
 }

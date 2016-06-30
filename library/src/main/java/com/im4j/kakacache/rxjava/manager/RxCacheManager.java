@@ -19,13 +19,14 @@ public class RxCacheManager extends CacheManager {
             try {
                 execute(subscriber);
             } catch (Throwable e) {
-                subscriber.onError(e);
+                onError(subscriber, e);
                 return;
             }
 
             subscriber.onCompleted();
         }
         abstract void execute(Subscriber<? super T> subscriber);
+        abstract void onError(Subscriber<? super T> subscriber, Throwable e);
     }
 
 
@@ -42,10 +43,11 @@ public class RxCacheManager extends CacheManager {
             @Override
             void execute(Subscriber<? super T> subscriber) {
                 T value = _load(key);
-//                if (value == null) {
-//                    subscriber.onError(new NotFoundException("找不到缓存’"+key+"'"));
-//                }
                 subscriber.onNext(value);
+            }
+            @Override
+            void onError(Subscriber<? super T> subscriber, Throwable e) {
+                subscriber.onNext(null);
             }
         }).subscribeOn(Schedulers.computation());
     }
@@ -60,6 +62,10 @@ public class RxCacheManager extends CacheManager {
             void execute(Subscriber<? super Boolean> subscriber) {
                 _save(key, value, expires, target);
                 subscriber.onNext(true);
+            }
+            @Override
+            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
+                subscriber.onNext(false);
             }
         });
     }
@@ -76,6 +82,10 @@ public class RxCacheManager extends CacheManager {
                 boolean value = _containsKey(key);
                 subscriber.onNext(value);
             }
+            @Override
+            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
+                subscriber.onNext(false);
+            }
         });
     }
 
@@ -90,6 +100,10 @@ public class RxCacheManager extends CacheManager {
                 _remove(key);
                 subscriber.onNext(true);
             }
+            @Override
+            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
+                subscriber.onNext(false);
+            }
         });
     }
 
@@ -102,6 +116,10 @@ public class RxCacheManager extends CacheManager {
             void execute(Subscriber<? super Boolean> subscriber) {
                 _clear();
                 subscriber.onNext(true);
+            }
+            @Override
+            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
+                subscriber.onNext(false);
             }
         });
     }

@@ -9,14 +9,14 @@ public enum CacheTarget {
     NONE,
     Memory,
     Disk,
-    MemoryDisk;
+    MemoryAndDisk;
 
     public boolean supportMemory() {
-        return this==Memory || this==MemoryDisk;
+        return this==Memory || this== MemoryAndDisk;
     }
 
     public boolean supportDisk() {
-        return this==Disk || this==MemoryDisk;
+        return this==Disk || this== MemoryAndDisk;
     }
 
 }

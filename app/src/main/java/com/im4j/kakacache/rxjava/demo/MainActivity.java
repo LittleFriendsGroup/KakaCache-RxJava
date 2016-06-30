@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.im4j.kakacache.rxjava.netcache.RxRemoteCache;
+import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnTest = (Button) findViewById(R.id.btn_test_cache);
         btnTest.setOnClickListener(view -> {
-            RxRemoteCache.cache(remote(), KEY_CACHE).subscribe(data -> {
+            remote().compose(RxRemoteCache.transformer(KEY_CACHE, new FirstCacheStrategy())).subscribe(data -> {
                 Log.e("main", "next  data="+data);
             }, error -> {
                 Log.e("main", "error", error);
