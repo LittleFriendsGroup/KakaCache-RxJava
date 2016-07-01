@@ -1,5 +1,7 @@
 package com.im4j.kakacache.rxjava.manager;
 
+import android.util.Log;
+
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
@@ -41,6 +43,7 @@ public class RxCacheManager extends CacheManager {
         return rx.Observable.create(new SimpleSubscribe<T>() {
             @Override
             void execute(Subscriber<? super T> subscriber) {
+                Log.e("CacheManager", "loadCache  key="+key);
                 T value = _load(key);
                 subscriber.onNext(value);
             }
@@ -48,7 +51,7 @@ public class RxCacheManager extends CacheManager {
             void onError(Subscriber<? super T> subscriber, Throwable e) {
                 subscriber.onNext(null);
             }
-        }).subscribeOn(Schedulers.computation());
+        });
     }
 
     /**

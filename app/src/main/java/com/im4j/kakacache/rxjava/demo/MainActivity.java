@@ -7,11 +7,9 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.im4j.kakacache.rxjava.netcache.RxRemoteCache;
-import com.im4j.kakacache.rxjava.netcache.strategy.FirstTimeStrategy;
+import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
 import java.util.concurrent.TimeUnit;
-
-import rx.Observable;
 
 /**
  * Demo主界面
@@ -29,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnTest = (Button) findViewById(R.id.btn_test_cache);
         btnTest.setOnClickListener(view -> {
-            remote().compose(RxRemoteCache.transformer(KEY_CACHE, new FirstTimeStrategy())).subscribe(data -> {
+            remote().compose(RxRemoteCache.transformer(KEY_CACHE, new FirstCacheStrategy())).subscribe(data -> {
                 Log.e("main", "next  data=" + data);
             }, error -> {
                 Log.e("main", "error", error);
@@ -40,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private rx.Observable<String> remote() {
-        Log.e("main", "run remote1");
         return rx.Observable.just("test remote").delay(3, TimeUnit.SECONDS);
     }
 
