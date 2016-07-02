@@ -10,6 +10,6 @@ import rx.Observable;
  */
 public interface CacheStrategy<T> {
 
-    public Observable<ResultData<T>> execute(String key, Observable<T> source);
+    Observable<ResultData<T>> execute(String key, Observable<T> source);
 
 }

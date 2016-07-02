@@ -4,6 +4,7 @@ package com.im4j.kakacache.rxjava.netcache;
 import android.os.Environment;
 import android.util.Log;
 
+import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.disk.converter.SerializableDiskConverter;
@@ -15,16 +16,41 @@ import com.im4j.kakacache.rxjava.manager.RxCacheManager;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.CallAdapter;
+import retrofit2.Callback;
+import retrofit2.Converter;
+import retrofit2.Retrofit;
+import retrofit2.http.GET;
+import retrofit2.http.HTTP;
+import retrofit2.http.Header;
+import retrofit2.http.Url;
 import rx.Observable;
+
+import static java.util.Collections.unmodifiableList;
 
 /**
  * RxJava的远程数据缓存处理
  * @version alafighting 2016-06
  */
-public class RxRemoteCache {
+public final class KakaCache {
 
-    private RxRemoteCache() {
+    private KakaCache() {
     }
 
     private static RxCacheManager cacheManager;
@@ -69,6 +95,9 @@ public class RxRemoteCache {
         return new CacheTransformer<T>(key, strategy);
     }
 
+    public static KakaRetrofit retrofit(Retrofit retrofit) {
+        return new KakaRetrofit(retrofit);
+    }
 
 
     private static class CacheTransformer<T> implements Observable.Transformer<T, ResultData<T>> {

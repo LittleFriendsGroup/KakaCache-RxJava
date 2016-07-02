@@ -29,4 +29,6 @@ dependencies {
     compile project(':library')
 
     compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
 }
