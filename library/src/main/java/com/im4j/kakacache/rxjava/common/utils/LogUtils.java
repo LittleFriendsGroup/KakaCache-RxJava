@@ -2,13 +2,11 @@ package com.im4j.kakacache.rxjava.common.utils;
 
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
+ * 日志打印工具
  * @version alafighting 2016-07
  */
 public final class LogUtils {
@@ -22,7 +20,7 @@ public final class LogUtils {
         String tag = className+'.'+element.getMethodName()+'('+element.getFileName()+':'+element.getLineNumber()+')';
         String message = toString(obj);
 
-        Log.e("[KakaCache]", tag+"\t"+message);
+        Log.e("[KakaCache]", tag+"\n\t"+message);
     }
 
     private static String toString(Object obj) {

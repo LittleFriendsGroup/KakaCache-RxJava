@@ -8,13 +8,12 @@ import android.widget.Button;
 
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.netcache.KakaCache;
-import com.im4j.kakacache.rxjava.netcache.KakaRetrofit;
+import com.im4j.kakacache.rxjava.netcache.retrofit.KakaRxCallAdapterFactory;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheAndRemoteStrategy;
-import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
 import java.util.concurrent.TimeUnit;
 
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Subscriber;
@@ -48,14 +47,25 @@ public class MainActivity extends AppCompatActivity {
 
         btnTestRetrofit = (Button) findViewById(R.id.btn_test_retrofit);
         btnTestRetrofit.setOnClickListener(view -> {
-            KakaRetrofit retrofit = new KakaRetrofit.Builder()
+            Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://api.github.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(KakaCache.gson().create()))
+                    .addCallAdapterFactory(KakaRxCallAdapterFactory.create())
                     .build();
 
             GitHubService service = retrofit.create(GitHubService.class);
-            service.listRepos("octocat").compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy())).subscribeOn(Schedulers.io()).subscribe(data -> {
+
+//            // 不修改原有代码，增加对Cache的支持
+//            service.listRepos("octocat").compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy())).subscribeOn(Schedulers.io()).subscribe(data -> {
+//                LogUtils.e(data);
+//            }, error -> {
+//                LogUtils.e(error);
+//            });
+
+            // 通过注解，自动支持Cache
+            service.listRepos("octocat", "abc")
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(data -> {
                 LogUtils.e(data);
             }, error -> {
                 LogUtils.e(error);

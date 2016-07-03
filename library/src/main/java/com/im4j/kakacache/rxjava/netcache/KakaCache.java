@@ -4,7 +4,14 @@ package com.im4j.kakacache.rxjava.netcache;
 import android.os.Environment;
 import android.util.Log;
 
-import com.im4j.kakacache.rxjava.common.utils.Utils;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.im4j.kakacache.rxjava.common.utils.TypeToken;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.disk.converter.SerializableDiskConverter;
@@ -16,33 +23,9 @@ import com.im4j.kakacache.rxjava.manager.RxCacheManager;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executor;
 
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.CallAdapter;
-import retrofit2.Callback;
-import retrofit2.Converter;
-import retrofit2.Retrofit;
-import retrofit2.http.GET;
-import retrofit2.http.HTTP;
-import retrofit2.http.Header;
-import retrofit2.http.Url;
 import rx.Observable;
-
-import static java.util.Collections.unmodifiableList;
 
 /**
  * RxJava的远程数据缓存处理
@@ -95,8 +78,10 @@ public final class KakaCache {
         return new CacheTransformer<T>(key, strategy);
     }
 
-    public static KakaRetrofit retrofit(Retrofit retrofit) {
-        return new KakaRetrofit(retrofit);
+    public static GsonBuilder gson() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(ResultData.class, new ResultDataAdapter());
+        return builder;
     }
 
 
@@ -112,6 +97,17 @@ public final class KakaCache {
         @Override
         public Observable<ResultData<T>> call(Observable<T> source) {
             return strategy.execute(key, source);
+        }
+    }
+    private static class ResultDataAdapter<T> implements JsonSerializer<ResultData<T>>, JsonDeserializer<ResultData<T>> {
+        @Override
+        public ResultData<T> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            return new ResultData(null, null, context.deserialize(json, new TypeToken<T>(){}.getType()));
+        }
+        @Override
+        public JsonElement serialize(ResultData<T> src, Type typeOfSrc, JsonSerializationContext context) {
+            return context.serialize(src.data, new TypeToken<T>(){}.getType());
         }
     }
 
