@@ -1,13 +1,13 @@
 package com.im4j.kakacache.rxjava.demo;
 
-import com.im4j.kakacache.rxjava.netcache.CACHE;
+import com.im4j.kakacache.rxjava.CACHE;
 import com.im4j.kakacache.rxjava.netcache.ResultData;
+import com.im4j.kakacache.rxjava.netcache.strategy.CacheAndRemoteStrategy;
 
 import java.util.List;
 
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 /**
  * @version alafighting 2016-07
@@ -15,8 +15,10 @@ import retrofit2.http.Query;
 public interface GitHubService {
 
     @GET("users/{user}/repos")
-    @CACHE("cache_key_listRepos")
-    rx.Observable<ResultData<List<GithubRepoEntity>>> listRepos(@Path("user") String user,
-                                        @Query("q") String q);
+    rx.Observable<List<GithubRepoEntity>> listReposForNormal(@Path("user") String user);
+
+    @GET("users/{user}/repos")
+    @CACHE(value = "custom_key_listRepos", strategy = CacheAndRemoteStrategy.class)
+    rx.Observable<ResultData<List<GithubRepoEntity>>> listReposForKaka(@Path("user") String user);
 
 }

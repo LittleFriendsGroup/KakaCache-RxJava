@@ -10,6 +10,8 @@ public class ResultData<T> {
     public String key;
     public T data;
 
+    public ResultData() {
+    }
     public ResultData(ResultFrom from, String key, T data) {
         this.from = from;
         this.key = key;

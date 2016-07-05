@@ -50,7 +50,7 @@ public class CacheCore {
     /**
      * 保存
      *
-     * @param expires 有效期（单位：秒）
+     * @param expires 有效期（单位：毫秒）
      */
     public <T> void save(String key, T value, int expires, CacheTarget target) throws CacheException {
         if (value == null) {

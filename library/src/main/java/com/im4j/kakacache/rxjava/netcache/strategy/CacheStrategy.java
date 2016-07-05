@@ -8,8 +8,8 @@ import rx.Observable;
  * 缓存策略
  * @version alafighting 2016-06
  */
-public interface CacheStrategy<T> {
+public interface CacheStrategy {
 
-    Observable<ResultData<T>> execute(String key, Observable<T> source);
+    <T> Observable<ResultData<T>> execute(String key, Observable<T> source);
 
 }

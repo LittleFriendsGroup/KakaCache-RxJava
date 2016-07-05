@@ -18,11 +18,6 @@ public class BasicSource extends InputStream implements Source {
     }
 
     @Override
-    public void close() throws IOException {
-        source.close();
-    }
-
-    @Override
     public int read() throws IOException {
         return source.read();
     }
@@ -44,6 +39,11 @@ public class BasicSource extends InputStream implements Source {
             buffer[offset + i] = (byte) c;
         }
         return byteCount;
+    }
+
+    @Override
+    public void close() throws IOException {
+        Utils.closeThrowException(source);
     }
 
 }

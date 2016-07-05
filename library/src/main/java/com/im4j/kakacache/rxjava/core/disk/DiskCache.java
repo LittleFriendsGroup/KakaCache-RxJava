@@ -14,7 +14,6 @@ import com.im4j.kakacache.rxjava.core.disk.storage.IDiskStorage;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 磁盘缓存
@@ -52,17 +51,18 @@ public final class DiskCache extends Cache {
         T value = null;
         if (source != null) {
             value = (T) mConverter.load(source, new TypeToken<T>(){}.getType());
-        }
-        try {
-            source.close();
-        } catch (IOException e) {
+
+            try {
+                source.close();
+            } catch (IOException e) {
+            }
         }
         return value;
     }
 
     /**
      * 保存
-     * @param expires 有效期（单位：秒）
+     * @param expires 有效期（单位：毫秒）
      */
     @Override
     protected <T> void doSave(String key, T value, int expires, CacheTarget target) throws CacheException {
@@ -72,15 +72,17 @@ public final class DiskCache extends Cache {
 
         // 写入缓存
         Sink sink = mStorage.create(key);
-        mConverter.writer(sink, value);
-        try {
-            sink.close();
-        } catch (IOException e) {
-        }
+        if (sink != null) {
+            mConverter.writer(sink, value);
+            try {
+                sink.close();
+            } catch (IOException e) {
+            }
 
-        long createTime = System.currentTimeMillis();
-        long expiresTime = createTime + expires;
-        mJournal.put(key, new CacheEntry(key, createTime, expiresTime, target));
+            long createTime = System.currentTimeMillis();
+            long expiresTime = createTime + expires;
+            mJournal.put(key, new CacheEntry(key, createTime, expiresTime, target));
+        }
     }
 
     @Override

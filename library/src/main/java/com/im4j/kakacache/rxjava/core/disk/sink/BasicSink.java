@@ -1,5 +1,7 @@
 package com.im4j.kakacache.rxjava.core.disk.sink;
 
+import com.im4j.kakacache.rxjava.common.utils.Utils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,7 +11,7 @@ import java.io.OutputStream;
  */
 public class BasicSink extends OutputStream implements Sink {
 
-    volatile Sink sink;
+    private volatile Sink sink;
 
     public BasicSink(Sink sink) {
         this.sink = sink;
@@ -32,7 +34,7 @@ public class BasicSink extends OutputStream implements Sink {
 
     @Override
     public void close() throws IOException {
-        sink.close();
+        Utils.closeThrowException(sink);
     }
 
 }

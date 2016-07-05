@@ -5,7 +5,6 @@ import com.im4j.kakacache.rxjava.core.CacheEntry;
 
 import java.io.Closeable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 磁盘缓存日志

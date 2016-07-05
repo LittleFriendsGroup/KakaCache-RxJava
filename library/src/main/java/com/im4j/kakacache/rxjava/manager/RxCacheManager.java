@@ -1,40 +1,58 @@
 package com.im4j.kakacache.rxjava.manager;
 
-import android.util.Log;
-
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
+import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 
 import rx.Subscriber;
-import rx.schedulers.Schedulers;
+import rx.exceptions.Exceptions;
 
 /**
  * RxJava模式缓存管理
  * @version alafighting 2016-04
  */
-public class RxCacheManager extends CacheManager {
+public class RxCacheManager {
 
     private static abstract class SimpleSubscribe<T> implements rx.Observable.OnSubscribe<T> {
         @Override
         public final void call(Subscriber<? super T> subscriber) {
             try {
-                execute(subscriber);
+                T data = execute();
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onNext(data);
+                }
             } catch (Throwable e) {
-                onError(subscriber, e);
+                LogUtils.log(e);
+                Exceptions.throwIfFatal(e);
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onError(e);
+                }
+                return;
             }
 
-            subscriber.onCompleted();
+            if (!subscriber.isUnsubscribed()) {
+                subscriber.onCompleted();
+            }
         }
-        abstract void execute(Subscriber<? super T> subscriber);
-        abstract void onError(Subscriber<? super T> subscriber, Throwable e);
+        abstract T execute() throws Throwable;
     }
 
 
-    public RxCacheManager(CacheCore cache) {
-        super(cache);
-    }
+    private final Object lock = new Object();
 
+    private CacheCore cache;
+    private int defaultExpires;
+
+    /**
+     * 构造函数
+     * @param cache
+     * @param defaultExpires 默认有效期（毫秒）
+     */
+    public RxCacheManager(CacheCore cache, int defaultExpires) {
+        this.cache = cache;
+        this.defaultExpires = defaultExpires;
+    }
 
     /**
      * 读取
@@ -42,18 +60,19 @@ public class RxCacheManager extends CacheManager {
     public <T> rx.Observable<T> load(final String key) {
         return rx.Observable.create(new SimpleSubscribe<T>() {
             @Override
-            void execute(Subscriber<? super T> subscriber) {
-                Log.e("CacheManager", "loadCache  key="+key);
-                T value = _load(key);
-                subscriber.onNext(value);
-            }
-            @Override
-            void onError(Subscriber<? super T> subscriber, Throwable e) {
-                subscriber.onNext(null);
+            T execute() {
+                LogUtils.log("loadCache  key="+key);
+                return cache.load(key);
             }
         });
     }
 
+    /**
+     * 保存
+     */
+    public <T> rx.Observable<Boolean> save(String key, T value) {
+        return save(key, value, defaultExpires, CacheTarget.MemoryAndDisk);
+    }
     /**
      * 保存
      * @param expires 有效期（单位：秒）
@@ -61,13 +80,12 @@ public class RxCacheManager extends CacheManager {
     public <T> rx.Observable<Boolean> save(final String key, final T value, final int expires, final CacheTarget target) {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            void execute(Subscriber<? super Boolean> subscriber) {
-                _save(key, value, expires, target);
-                subscriber.onNext(true);
-            }
-            @Override
-            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
-                subscriber.onNext(false);
+            Boolean execute() throws Throwable {
+                // 同步
+                synchronized(lock) {
+                    cache.save(key, value, expires, target);
+                }
+                return true;
             }
         });
     }
@@ -80,13 +98,8 @@ public class RxCacheManager extends CacheManager {
     public rx.Observable<Boolean> containsKey(final String key) {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            void execute(Subscriber<? super Boolean> subscriber) {
-                boolean value = _containsKey(key);
-                subscriber.onNext(value);
-            }
-            @Override
-            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
-                subscriber.onNext(false);
+            Boolean execute() throws Throwable {
+                return cache.containsKey(key);
             }
         });
     }
@@ -94,17 +107,16 @@ public class RxCacheManager extends CacheManager {
     /**
      * 删除缓存
      * @param key
+     * // TODO return Boolean?
      */
     public rx.Observable<Boolean> remove(final String key) {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            void execute(Subscriber<? super Boolean> subscriber) {
-                _remove(key);
-                subscriber.onNext(true);
-            }
-            @Override
-            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
-                subscriber.onNext(false);
+            Boolean execute() throws Throwable {
+                synchronized(lock) {
+                    cache.remove(key);
+                }
+                return true;
             }
         });
     }
@@ -115,13 +127,12 @@ public class RxCacheManager extends CacheManager {
     public rx.Observable<Boolean> clear() throws CacheException {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
-            void execute(Subscriber<? super Boolean> subscriber) {
-                _clear();
-                subscriber.onNext(true);
-            }
-            @Override
-            void onError(Subscriber<? super Boolean> subscriber, Throwable e) {
-                subscriber.onNext(false);
+            Boolean execute() throws Throwable {
+                // 同步
+                synchronized(lock) {
+                    cache.clear();
+                }
+                return true;
             }
         });
     }

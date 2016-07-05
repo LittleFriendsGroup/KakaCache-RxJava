@@ -1,5 +1,9 @@
 package com.im4j.kakacache.rxjava.core;
 
+import com.litesuits.orm.db.annotation.Column;
+import com.litesuits.orm.db.annotation.PrimaryKey;
+import com.litesuits.orm.db.enums.AssignType;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +11,11 @@ import java.io.Serializable;
  * @version 0.1 king 2016-04
  */
 public class CacheEntry implements Serializable {
+    public static final String COL_KEY = "key";
+
     /** KEY */
+    @PrimaryKey(AssignType.BY_MYSELF)
+    @Column(COL_KEY)
     private final String key;
     /** 创建时间 */
     private long createTime;

@@ -1,6 +1,8 @@
 package com.im4j.kakacache.rxjava.core.disk.sink;
 
 import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
+import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,8 +19,9 @@ public class FileSink implements Sink {
 
     public FileSink(File file) throws NotFoundException {
         try {
-            this.outputStream = new FileOutputStream(file);
+            this.outputStream = new FileOutputStream(file, false);
         } catch (FileNotFoundException e) {
+            LogUtils.log(e);
             throw new NotFoundException(e);
         }
     }
@@ -40,6 +43,6 @@ public class FileSink implements Sink {
 
     @Override
     public void close() throws IOException {
-        outputStream.close();
+        Utils.closeThrowException(outputStream);
     }
 }

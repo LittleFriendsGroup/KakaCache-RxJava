@@ -2,7 +2,7 @@ package com.im4j.kakacache.rxjava.netcache.retrofit;
 
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.netcache.KakaCache;
+import com.im4j.kakacache.rxjava.KakaCache;
 import com.im4j.kakacache.rxjava.netcache.ResultData;
 import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
@@ -107,21 +107,25 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
             if (ResultData.class.equals(Utils.getRawType(responseType()))) {
                 // 启用缓存
                 CacheInfo info = CacheInfo.get(annotations);
-                LogUtils.e(info);
+                LogUtils.log(info);
                 if (info.isEnable()) {
                     // 处理缓存
 
                     if (Utils.isEmpty(info.getKey())) {
                         // 生成KEY
                         String key = info.buildKey(call.request());
-                        LogUtils.e("buildKey="+key);
+                        LogUtils.log("buildKey="+key);
                         info.setKey(ByteString.of(key.getBytes()).md5().hex());
                     }
 
-                    LogUtils.e("fileName="+info.getKey());
+                    LogUtils.log("fileName="+info.getKey());
+
+                    if (info.getStrategy() == null) {
+                        info.setStrategy(FirstCacheStrategy.class);
+                    }
 
                     return callAdapter.doAdaptUnwrap(call)
-                            .compose(KakaCache.transformer(info.getKey(), new FirstCacheStrategy()));
+                            .compose(KakaCache.transformer(info.getKey(), Utils.newInstance(info.getStrategy())));
                 }
 
                 return callAdapter.doAdaptUnwrap(call);

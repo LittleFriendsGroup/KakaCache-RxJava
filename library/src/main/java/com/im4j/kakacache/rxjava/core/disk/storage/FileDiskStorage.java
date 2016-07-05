@@ -2,6 +2,7 @@ package com.im4j.kakacache.rxjava.core.disk.storage;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
+import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.disk.sink.FileSink;
 import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
@@ -36,7 +37,11 @@ public class FileDiskStorage implements IDiskStorage {
         if (Utils.isEmpty(key)) {
             return null;
         }
-        return new FileSource(new File(mStorageDir, key));
+        File file = new File(mStorageDir, key);
+        if (!file.exists() || !file.isFile()) {
+            return null;
+        }
+        return new FileSource(file);
     }
 
     @Override
@@ -44,7 +49,17 @@ public class FileDiskStorage implements IDiskStorage {
         if (Utils.isEmpty(key)) {
             return null;
         }
-        return new FileSink(new File(mStorageDir, key));
+        File file = new File(mStorageDir, key);
+        if (!file.exists() || !file.isFile()) {
+            try {
+                LogUtils.log("createNewFile => "+file);
+                file.createNewFile();
+            } catch (IOException e) {
+                LogUtils.log(e);
+                return null;
+            }
+        }
+        return new FileSink(file);
     }
 
     @Override

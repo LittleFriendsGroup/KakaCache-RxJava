@@ -1,24 +1,23 @@
 package com.im4j.kakacache.rxjava.demo;
 
-import com.google.gson.annotations.SerializedName;
+import com.im4j.kakacache.rxjava.common.utils.MemorySizeOf;
+
+import java.io.Serializable;
 
 /**
  * @version alafighting 2016-07
  */
-public class GithubRepoEntity {
+public class GithubRepoEntity implements MemorySizeOf.SizeOf, Serializable {
 
     private String id;
     private String name;
-    @SerializedName("full_name")
-    private String fullName;
     private String description;
 
     public GithubRepoEntity() {
     }
-    public GithubRepoEntity(String id, String name, String fullName, String description) {
+    public GithubRepoEntity(String id, String name, String description) {
         this.id = id;
         this.name = name;
-        this.fullName = fullName;
         this.description = description;
     }
 
@@ -27,7 +26,6 @@ public class GithubRepoEntity {
         return "GithubRepoEntity{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", fullName='" + fullName + '\'' +
                 ", description='" + description + '\'' +
                 '}';
     }
@@ -48,19 +46,18 @@ public class GithubRepoEntity {
         this.name = name;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public long sizeOf() {
+        return MemorySizeOf.sizeOf(id)
+                + MemorySizeOf.sizeOf(name)
+                + MemorySizeOf.sizeOf(description);
     }
 }

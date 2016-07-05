@@ -9,14 +9,16 @@ import rx.schedulers.Schedulers;
  * 先缓存，后网络
  * @version alafighting 2016-06
  */
-public class CacheAndRemoteStrategy<T> extends BasicCacheStrategy<T> {
+public class CacheAndRemoteStrategy extends BasicCacheStrategy {
 
     @Override
-    public Observable<ResultData<T>> execute(String key, Observable source) {
-        return Observable.concat(
-                loadCache(key),
-                loadRemote(key, source)
-        ).subscribeOn(Schedulers.io());
+    public <T> Observable<ResultData<T>> execute(String key, Observable<T> source) {
+        Observable<ResultData<T>> cache = loadCache(key);
+        Observable<ResultData<T>> remote = loadRemote(key, source);
+        return Observable.concat(cache, remote)
+                .filter(result -> result.data != null)
+                .onBackpressureBuffer()
+                .subscribeOn(Schedulers.io());
     }
 
 }

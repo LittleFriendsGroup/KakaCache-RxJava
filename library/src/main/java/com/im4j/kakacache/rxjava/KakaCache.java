@@ -1,8 +1,6 @@
-package com.im4j.kakacache.rxjava.netcache;
+package com.im4j.kakacache.rxjava;
 
-
-import android.os.Environment;
-import android.util.Log;
+import android.content.Context;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -11,19 +9,23 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.im4j.kakacache.rxjava.common.utils.TypeToken;
+import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
-import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.disk.converter.SerializableDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.journal.LRUDiskJournal;
 import com.im4j.kakacache.rxjava.core.disk.storage.FileDiskStorage;
 import com.im4j.kakacache.rxjava.core.memory.journal.LRUMemoryJournal;
 import com.im4j.kakacache.rxjava.core.memory.storage.SimpleMemoryStorage;
 import com.im4j.kakacache.rxjava.manager.RxCacheManager;
+import com.im4j.kakacache.rxjava.netcache.ResultData;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
+import com.litesuits.orm.LiteOrm;
 
 import java.io.File;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 import rx.Observable;
 
@@ -36,13 +38,28 @@ public final class KakaCache {
     private KakaCache() {
     }
 
-    private static RxCacheManager cacheManager;
-    private static int expires = 12 * 60 * 60 * 1000;
+    // 缓存默认有效期
+    private static final int DEFAULT_EXPIRES = 12 * 60 * 60 * 1000;
+    // 缓存保存路径
+    private static final String DEFAULT_STORAGE_DIR = "kakacache";
 
-    private static RxCacheManager getCacheManager() {
+    private static LiteOrm liteOrm;
+    private static RxCacheManager cacheManager;
+    private static Context context;
+
+    public static void init(Context context) {
+        KakaCache.context = context.getApplicationContext();
+    }
+
+    public static RxCacheManager manager() {
+        if (liteOrm == null) {
+            liteOrm = LiteOrm.newSingleInstance(context, "cache_journal.db");
+        }
+        liteOrm.setDebugged(true); // open the log
+
         if (cacheManager == null) {
-            File storageDir = new File(Environment.getExternalStorageDirectory(), "aaa_test");
-            Log.e("RxRemoteCache", "storageDir="+storageDir.getAbsolutePath());
+            File storageDir = new File(Utils.getStorageCacheDir(context), DEFAULT_STORAGE_DIR);
+            LogUtils.log("storageDir="+storageDir.getAbsolutePath());
 
             storageDir.mkdirs();
 
@@ -51,25 +68,13 @@ public final class KakaCache {
             coreBuilder.memoryJournal(new LRUMemoryJournal());
             coreBuilder.memoryMax(10 * 1024 * 1024, 1000);
             coreBuilder.disk(new FileDiskStorage(storageDir));
-            coreBuilder.diskJournal(new LRUDiskJournal());
+            coreBuilder.diskJournal(new LRUDiskJournal(liteOrm));
             coreBuilder.diskMax(30 * 1024 * 1024, 10 * 1000);
             coreBuilder.diskConverter(new SerializableDiskConverter());
             CacheCore core = coreBuilder.create();
-            cacheManager = new RxCacheManager(core);
+            cacheManager = new RxCacheManager(core, DEFAULT_EXPIRES);
         }
         return cacheManager;
-    }
-
-    public static <T> rx.Observable<T> load(String key) {
-        return getCacheManager().load(key);
-    }
-
-    public static <T> rx.Observable<Boolean> save(String key, T value, CacheTarget target) {
-        return getCacheManager().save(key, value, expires, target);
-    }
-
-    public static <T> rx.Observable<Boolean> save(String key, T value) {
-        return save(key, value, CacheTarget.MemoryAndDisk);
     }
 
 
@@ -87,9 +92,9 @@ public final class KakaCache {
 
     private static class CacheTransformer<T> implements Observable.Transformer<T, ResultData<T>> {
         private String key;
-        private CacheStrategy<T> strategy;
+        private CacheStrategy strategy;
 
-        public CacheTransformer(String key, CacheStrategy<T> strategy) {
+        public CacheTransformer(String key, CacheStrategy strategy) {
             this.key = key;
             this.strategy = strategy;
         }
@@ -103,11 +108,16 @@ public final class KakaCache {
         @Override
         public ResultData<T> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
-            return new ResultData(null, null, context.deserialize(json, new TypeToken<T>(){}.getType()));
+            return new ResultData(null, null, context.deserialize(json, getWrapType(typeOfT)));
         }
         @Override
         public JsonElement serialize(ResultData<T> src, Type typeOfSrc, JsonSerializationContext context) {
-            return context.serialize(src.data, new TypeToken<T>(){}.getType());
+            return context.serialize(src.data, getWrapType(typeOfSrc));
+        }
+
+        private static Type getWrapType(Type typeOf) {
+            ParameterizedType type = (ParameterizedType) typeOf;
+            return Arrays.asList(type.getActualTypeArguments()).get(0);
         }
     }
 

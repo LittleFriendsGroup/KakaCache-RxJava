@@ -1,6 +1,7 @@
 package com.im4j.kakacache.rxjava.core.disk.source;
 
 import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
+import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,8 +36,7 @@ public class FileSource implements Source {
 
     @Override
     public void close() throws IOException {
-        inputStream.close();
-        inputStream = null;
+        Utils.closeThrowException(inputStream);
     }
 
 }

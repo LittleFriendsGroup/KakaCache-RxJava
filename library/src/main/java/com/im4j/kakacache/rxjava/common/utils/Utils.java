@@ -1,8 +1,15 @@
 package com.im4j.kakacache.rxjava.common.utils;
 
+import android.content.Context;
+import android.os.Environment;
+
 import com.im4j.kakacache.rxjava.common.exception.ArgumentException;
+import com.im4j.kakacache.rxjava.common.exception.InstanceException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -216,13 +223,76 @@ public final class Utils {
         return a == b || (a != null && a.equals(b));
     }
 
-    public static int hashCodeOrZero(Object o) {
-        return o != null ? o.hashCode() : 0;
+    public static <T> T newInstance(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (InstantiationException e) {
+            throw new InstanceException(e.getMessage());
+        } catch (IllegalAccessException e) {
+            throw new InstanceException(e.getMessage());
+        }
     }
 
-    public static void checkNotPrimitive(Type type) {
-        if (type instanceof Class<?> && ((Class<?>) type).isPrimitive()) {
-            throw new IllegalArgumentException();
+    public static final String SEPARATOR = File.separator;
+    /**
+     * 获取缓存目录路径
+     * <p><b>
+     * ！注意：若不存在，则返回null
+     * </b></p>
+     * @param context
+     * @return 返回:/storage/sdcard0/Android/data/you_packageName/cache/
+     */
+    public static File getStorageCacheDir(Context context) {
+        if (!canUseSDCard()) {
+            return getDataCacheDir(context);
+        }
+
+        File path = Environment.getExternalStorageDirectory();
+        if (path == null) {
+            return getDataCacheDir(context);
+        }
+
+        return new File(path.getAbsolutePath() + SEPARATOR + "Android" + SEPARATOR + "data" + SEPARATOR
+                + context.getPackageName() + SEPARATOR + "cache" + SEPARATOR);
+    }
+    static File getDataCacheDir(Context context) {
+//        String dataDir = "/data";
+//
+//        File path = Environment.getDataDirectory();
+//        if (path != null) {
+//            dataDir = path.getAbsolutePath();
+//        }
+//        return new File(dataDir + SEPARATOR + "data"  + SEPARATOR
+//                + context.getPackageName() + SEPARATOR + "cache" + SEPARATOR);
+
+        return context.getCacheDir();
+    }
+
+    /**
+     * SDCard是否可用
+     * <p>PS：一定存在</p>
+     * @return
+     */
+    public static boolean canUseSDCard() {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            // 是否可写
+            return Environment.getExternalStorageDirectory().canWrite();
+        }
+        return false;
+    }
+
+    public static void close(Closeable close) {
+        if (close != null) {
+            try {
+                closeThrowException(close);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+
+    public static void closeThrowException(Closeable close) throws IOException {
+        if (close != null) {
+            close.close();
         }
     }
 
