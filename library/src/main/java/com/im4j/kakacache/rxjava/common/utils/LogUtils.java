@@ -13,39 +13,53 @@ public final class LogUtils {
     private LogUtils() {
     }
 
-    public static void e(Object obj) {
+    public static void e(Object message) {
         StackTraceElement element = new Throwable().getStackTrace()[1];
+        print(element, message, null);
+    }
+    public static void e(Object message, Throwable error) {
+        StackTraceElement element = new Throwable().getStackTrace()[1];
+        print(element, message, error);
+    }
+    private static void print(StackTraceElement element, Object message, Throwable error) {
         String className = element.getClassName();
         className = className.substring(className.lastIndexOf(".") + 1);
         String tag = className+'.'+element.getMethodName()+'('+element.getFileName()+':'+element.getLineNumber()+')';
-        String message = toString(obj);
+        String text = toString(message);
 
-        Log.e("[KakaCache]", tag+"\n\t"+message);
+        if (error != null) {
+            Log.e("[KakaCache]", tag + "\n\t" + text, error);
+        } else {
+            Log.e("[KakaCache]", tag + "\n\t" + text);
+        }
     }
 
-    private static String toString(Object obj) {
-        if (obj == null) {
+    private static String toString(Object message) {
+        if (message == null) {
             return "[null]";
         }
-        if (obj instanceof Throwable) {
-            return Log.getStackTraceString((Throwable) obj);
+        if (message instanceof Throwable) {
+            return Log.getStackTraceString((Throwable) message);
         }
-        if (obj instanceof Collection) {
-            Iterator it = ((Collection) obj).iterator();
-            if (! it.hasNext())
-                return "[]";
+        if (message instanceof Collection) {
+            return toString((Collection) message);
+        }
+        return String.valueOf(message);
+    }
+    private static String toString(Collection message) {
+        Iterator it = message.iterator();
+        if (! it.hasNext())
+            return "[]";
 
-            StringBuilder sb = new StringBuilder();
-            sb.append('[');
-            for (;;) {
-                Object e = it.next();
-                sb.append(e);
-                if (! it.hasNext())
-                    return sb.append(']').toString();
-                sb.append(',').append('\n').append(' ');
-            }
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        for (;;) {
+            Object e = it.next();
+            sb.append(e);
+            if (! it.hasNext())
+                return sb.append(']').toString();
+            sb.append(',').append('\n').append(' ');
         }
-        return String.valueOf(obj);
     }
 
 }
