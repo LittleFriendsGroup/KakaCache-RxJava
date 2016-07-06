@@ -45,29 +45,41 @@ public class MainActivity extends AppCompatActivity {
 
         btnTestCache = (Button) findViewById(R.id.btn_test_cache);
         btnTestCache.setOnClickListener(view -> {
-            // 不修改原有代码，增加对Cache的支持
-            service.listReposForNormal("alafighting")
-                    .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
-                    .subscribe(data -> {
-                LogUtils.log("next  data=" + data);
-            }, error -> {
-                LogUtils.log("error", error);
-            }, () -> {
-                LogUtils.log("completed");
-            });
+            demoForNormal();
         });
 
         btnTestRetrofit = (Button) findViewById(R.id.btn_test_retrofit);
         btnTestRetrofit.setOnClickListener(view -> {
-            // 通过注解，自动支持Cache
-            service.listReposForKaka("alafighting")
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(data -> {
-                        LogUtils.log("listReposForKaka => "+data);
-                    }, error -> {
-                        LogUtils.log(error);
-                    });
+            demoForKaka();
         });
+    }
+
+    /**
+     * 案例一：不修改原有代码，增加对Cache的支持
+     */
+    void demoForNormal() {
+        service.listReposForNormal("alafighting")
+                .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
+                .subscribe(data -> {
+                    LogUtils.log("next  data=" + data);
+                }, error -> {
+                    LogUtils.log("error", error);
+                }, () -> {
+                    LogUtils.log("completed");
+                });
+    }
+
+    /**
+     * 案例二：通过注解，自动支持Cache
+     */
+    void demoForKaka() {
+        service.listReposForKaka("alafighting")
+                .subscribeOn(Schedulers.io())
+                .subscribe(data -> {
+                    LogUtils.log("listReposForKaka => "+data);
+                }, error -> {
+                    LogUtils.log(error);
+                });
     }
 
 }

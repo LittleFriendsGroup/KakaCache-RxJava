@@ -16,15 +16,16 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
+
+import okhttp3.Request;
+import okio.Buffer;
+import okio.ByteString;
 
 /**
  * 工具类
  * @version alafighting 2016-04
  */
 public final class Utils {
-
-    static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 
     private Utils() {
     }
@@ -74,21 +75,6 @@ public final class Utils {
                     + "; regionLength=" + count);
         }
     }
-    public static void checkOffsetAndCount(int offset, int count) {
-        if ((offset | count) < 0) {
-            throw new ArrayIndexOutOfBoundsException("regionStart=" + offset
-                    + "; regionLength=" + count);
-        }
-    }
-    public static void checkBytes(byte[] array, int len) {
-        if (len < 0) {
-            throw new ArrayIndexOutOfBoundsException("len=" + len);
-        }
-        if (array == null || array.length != len) {
-            throw new ArrayIndexOutOfBoundsException("array=" + len+"; len="+len);
-        }
-    }
-
 
     /**
      * 取父类泛型
@@ -175,54 +161,6 @@ public final class Utils {
                 + "GenericArrayType, but <" + type + "> is of type " + type.getClass().getName());
     }
 
-    public static String typeToString(Type type) {
-        return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
-    }
-
-    public static boolean equals(Type a, Type b) {
-        if (a == b) {
-            return true; // Also handles (a == null && b == null).
-
-        } else if (a instanceof Class) {
-            return a.equals(b); // Class already specifies equals().
-
-        } else if (a instanceof ParameterizedType) {
-            if (!(b instanceof ParameterizedType)) return false;
-            ParameterizedType pa = (ParameterizedType) a;
-            ParameterizedType pb = (ParameterizedType) b;
-            return equal(pa.getOwnerType(), pb.getOwnerType())
-                    && pa.getRawType().equals(pb.getRawType())
-                    && Arrays.equals(pa.getActualTypeArguments(), pb.getActualTypeArguments());
-
-        } else if (a instanceof GenericArrayType) {
-            if (!(b instanceof GenericArrayType)) return false;
-            GenericArrayType ga = (GenericArrayType) a;
-            GenericArrayType gb = (GenericArrayType) b;
-            return equals(ga.getGenericComponentType(), gb.getGenericComponentType());
-
-        } else if (a instanceof WildcardType) {
-            if (!(b instanceof WildcardType)) return false;
-            WildcardType wa = (WildcardType) a;
-            WildcardType wb = (WildcardType) b;
-            return Arrays.equals(wa.getUpperBounds(), wb.getUpperBounds())
-                    && Arrays.equals(wa.getLowerBounds(), wb.getLowerBounds());
-
-        } else if (a instanceof TypeVariable) {
-            if (!(b instanceof TypeVariable)) return false;
-            TypeVariable<?> va = (TypeVariable<?>) a;
-            TypeVariable<?> vb = (TypeVariable<?>) b;
-            return va.getGenericDeclaration() == vb.getGenericDeclaration()
-                    && va.getName().equals(vb.getName());
-
-        } else {
-            return false; // This isn't a type we support!
-        }
-    }
-
-    private static boolean equal(Object a, Object b) {
-        return a == b || (a != null && a.equals(b));
-    }
-
     public static <T> T newInstance(Class<T> clazz) {
         try {
             return clazz.newInstance();
@@ -232,6 +170,38 @@ public final class Utils {
             throw new InstanceException(e.getMessage());
         }
     }
+
+    /**
+     * 根据Request生成唯一KEY
+     * @param request
+     * @return
+     */
+    public static String buildKey(Request request) {
+        StringBuilder str = new StringBuilder();
+        str.append('[');
+        str.append(request.method());
+        str.append(']');
+        str.append('[');
+        str.append(request.url());
+        str.append(']');
+
+
+        try {
+            Buffer buffer = new Buffer();
+            request.body().writeTo(buffer);
+            str.append(buffer.readByteString().sha1().hex());
+        } catch (IOException e) {
+            LogUtils.log(e);
+            return "";
+        }
+
+        str.append('-');
+        str.append(ByteString.of(request.headers().toString().getBytes()).sha1().hex());
+
+        return str.toString();
+    }
+
+
 
     public static final String SEPARATOR = File.separator;
     /**

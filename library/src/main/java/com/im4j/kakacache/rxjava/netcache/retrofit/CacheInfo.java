@@ -1,15 +1,9 @@
 package com.im4j.kakacache.rxjava.netcache.retrofit;
 
 import com.im4j.kakacache.rxjava.CACHE;
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
-
-import okhttp3.Request;
-import okio.Buffer;
-import okio.ByteString;
 
 /**
  * 缓存信息
@@ -32,31 +26,6 @@ public class CacheInfo {
 
         return info;
     }
-    public static String buildKey(Request request) {
-        StringBuffer str = new StringBuffer();
-        str.append('[');
-        str.append(request.method());
-        str.append(']');
-        str.append('[');
-        str.append(request.url());
-        str.append(']');
-
-
-        try {
-            Buffer buffer = new Buffer();
-            request.body().writeTo(buffer);
-            str.append(buffer.readByteString().sha1().hex());
-        } catch (IOException e) {
-            LogUtils.log(e);
-            return null;
-        }
-
-        str.append('-');
-        str.append(ByteString.of(request.headers().toString().getBytes()).sha1().hex());
-
-        return str.toString();
-    }
-
 
 
     private String key;

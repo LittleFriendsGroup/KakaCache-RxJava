@@ -15,14 +15,14 @@ abstract class BasicCacheStrategy implements CacheStrategy {
 
     <T> Observable<ResultData<T>> loadCache(String key) {
         return KakaCache.manager().load(key).map(it -> {
-            LogUtils.log("loadCache result="+it);
+            LogUtils.debug("loadCache result="+it);
             return new ResultData<>(ResultFrom.Cache, key, (T) it);
         });
     }
 
     <T> Observable<ResultData<T>> loadRemote(String key, Observable<T> source) {
         return source.map(it -> {
-            LogUtils.log("loadRemote result="+it);
+            LogUtils.debug("loadRemote result="+it);
             KakaCache.manager().save(key, it).subscribe(status -> LogUtils.log("save status => "+status) );
             return new ResultData<>(ResultFrom.Remote, key, it);
         });

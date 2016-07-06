@@ -61,7 +61,7 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<T>() {
             @Override
             T execute() {
-                LogUtils.log("loadCache  key="+key);
+                LogUtils.debug("loadCache  key="+key);
                 return cache.load(key);
             }
         });

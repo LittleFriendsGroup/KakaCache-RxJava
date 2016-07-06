@@ -7,7 +7,6 @@ import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
 import com.im4j.kakacache.rxjava.core.disk.source.BasicSource;
 import com.im4j.kakacache.rxjava.core.disk.source.Source;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,22 +25,12 @@ public class SerializableDiskConverter implements IDiskConverter {
         try {
             oin = new ObjectInputStream(new BasicSource(source));
             value = oin.readObject();
-        } catch (FileNotFoundException e) {
-            // TODO log
-            e.printStackTrace();
         } catch (IOException e) {
-            // TODO log
-            e.printStackTrace();
+            LogUtils.log(e);
         } catch (ClassNotFoundException e) {
-            // TODO log
-            e.printStackTrace();
+            LogUtils.log(e);
         } finally {
-            if (oin != null) {
-                try {
-                    oin.close();
-                } catch (IOException ignored) {
-                }
-            }
+            Utils.close(oin);
         }
         return value;
     }
@@ -52,10 +41,7 @@ public class SerializableDiskConverter implements IDiskConverter {
         try {
             oos = new ObjectOutputStream(new BasicSink(sink));
             oos.writeObject(data);
-            oos.flush();  //缓冲流
-            oos.close(); //关闭流
-        } catch (FileNotFoundException e) {
-            LogUtils.log(e);
+            oos.flush(); //缓冲流
         } catch (IOException e) {
             LogUtils.log(e);
         } finally {

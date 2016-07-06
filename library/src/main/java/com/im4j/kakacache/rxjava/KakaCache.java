@@ -53,7 +53,7 @@ public final class KakaCache {
 
     public static RxCacheManager manager() {
         if (liteOrm == null) {
-            liteOrm = LiteOrm.newSingleInstance(context, "cache_journal.db");
+            liteOrm = LiteOrm.newSingleInstance(context, "kakacache_journal.db");
         }
         liteOrm.setDebugged(true); // open the log
 
