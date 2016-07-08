@@ -19,6 +19,7 @@ import com.im4j.kakacache.rxjava.core.memory.journal.LRUMemoryJournal;
 import com.im4j.kakacache.rxjava.core.memory.storage.SimpleMemoryStorage;
 import com.im4j.kakacache.rxjava.manager.RxCacheManager;
 import com.im4j.kakacache.rxjava.netcache.ResultData;
+import com.im4j.kakacache.rxjava.netcache.retrofit.KakaRxCallAdapterFactory;
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 import com.litesuits.orm.LiteOrm;
 
@@ -27,6 +28,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
+import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 
 /**
@@ -87,6 +91,18 @@ public final class KakaCache {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(ResultData.class, new ResultDataAdapter());
         return builder;
+    }
+
+    public static Converter.Factory gsonConverter(GsonBuilder builder) {
+        builder.registerTypeAdapter(ResultData.class, new ResultDataAdapter());
+        return GsonConverterFactory.create(builder.create());
+    }
+    public static Converter.Factory gsonConverter() {
+        return gsonConverter(KakaCache.gson());
+    }
+
+    public static CallAdapter.Factory rxCallAdapter() {
+        return KakaRxCallAdapterFactory.create();
     }
 
 

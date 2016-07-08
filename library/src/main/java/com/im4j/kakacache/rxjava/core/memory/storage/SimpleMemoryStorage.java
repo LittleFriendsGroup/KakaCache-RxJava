@@ -103,4 +103,5 @@ public class SimpleMemoryStorage implements IMemoryStorage {
     public long getTotalQuantity() {
         return mStorageMap.size();
     }
+
 }

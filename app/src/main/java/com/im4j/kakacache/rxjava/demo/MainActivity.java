@@ -7,11 +7,11 @@ import android.widget.Button;
 
 import com.im4j.kakacache.rxjava.KakaCache;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
-import com.im4j.kakacache.rxjava.netcache.retrofit.KakaRxCallAdapterFactory;
 import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
-                .addConverterFactory(GsonConverterFactory.create(KakaCache.gson().create()))
-                .addCallAdapterFactory(KakaRxCallAdapterFactory.create())
+                .addConverterFactory(KakaCache.gsonConverter())
+                .addCallAdapterFactory(KakaCache.rxCallAdapter())
                 .build();
 
         service = retrofit.create(GitHubService.class);
@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     void demoForNormal() {
         service.listReposForNormal("alafighting")
                 .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     LogUtils.log("next  data=" + data);
                 }, error -> {
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     void demoForKaka() {
         service.listReposForKaka("alafighting")
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {
                     LogUtils.log("listReposForKaka => "+data);
                 }, error -> {
