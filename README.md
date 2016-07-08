@@ -1,6 +1,45 @@
 ## 咔咔缓存（KakaCache）
 > 咔咔一声，缓存搞定。这是一个专用于解决Android中网络请求及图片加载的缓存处理框架
 
+## 如何使用
+
+### 准备Retrofit
+```java
+retrofit = new Retrofit.Builder()
+    .baseUrl("https://api.github.com/")
+    .addConverterFactory(KakaCache.gsonConverter())
+    .addCallAdapterFactory(KakaCache.rxCallAdapter())
+    .build();
+```
+
+### 定义接口
+```java
+@GET("users/{user}/repos")
+@CACHE(value = "custom_key_listRepos", strategy = CacheAndRemoteStrategy.class)
+rx.Observable<ResultData<List<GithubRepoEntity>>> listReposForKaka(@Path("user") String user);
+```
+
+### 调用接口
+```java
+service.listReposForKaka("alafighting")
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(data -> {
+        LogUtils.log("listReposForKaka => "+data);
+    }, error -> {
+        LogUtils.log(error);
+    });
+```
+
+### or 太麻烦？你要的一步到位！！
+再原有代码的基础上，仅需一行代码搞定
+```java
+.compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
+```
+
+在这里声明缓存策略即可，不影响原有代码结构
+
+
 ## 支持特性
 
 #### 缓存层级 - 更优良可靠的缓存
