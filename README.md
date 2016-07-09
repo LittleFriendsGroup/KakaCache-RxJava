@@ -31,8 +31,9 @@ service.listReposForKaka("alafighting")
     });
 ```
 
-### or 太麻烦？你要的一步到位！！
-再原有代码的基础上，仅需一行代码搞定
+### or 太麻烦？给你`一步到位`！！
+
+在原有代码的基础上，仅需一行代码搞定
 ```java
 .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
 ```
