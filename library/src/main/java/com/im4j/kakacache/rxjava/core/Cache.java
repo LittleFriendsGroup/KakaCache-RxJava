@@ -53,9 +53,9 @@ public abstract class Cache {
 
     /**
      * 保存
-     * @param expires 有效期（单位：秒）
+     * @param maxAge 最大有效期时长（单位：秒）
      */
-    public final <T> void save(String key, T value, int expires, CacheTarget target) throws CacheException {
+    public final <T> void save(String key, T value, int maxAge, CacheTarget target) throws CacheException {
         Utils.checkNotNull(key);
 
         if (value == null) {
@@ -66,7 +66,7 @@ public abstract class Cache {
         // TODO 先写入，后清理。会超出限定条件，需要一定交换空间
 
         // 写入缓存
-        doSave(key, value, expires, target);
+        doSave(key, value, maxAge, target);
 
         // 清理无用数据
         clearUnused();
@@ -74,9 +74,9 @@ public abstract class Cache {
 
     /**
      * 保存
-     * @param expires 有效期（单位：毫秒）
+     * @param maxAge 最长有效期时长（单位：毫秒）
      */
-    protected abstract <T> void doSave(String key, T value, int expires, CacheTarget target) throws CacheException;
+    protected abstract <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException;
 
 
     /**

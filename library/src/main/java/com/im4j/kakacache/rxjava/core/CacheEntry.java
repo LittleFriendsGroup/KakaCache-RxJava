@@ -13,35 +13,55 @@ import java.io.Serializable;
 public class CacheEntry implements Serializable {
     public static final String COL_KEY = "key";
     public static final String COL_CREATE_TIME = "create_time";
-    public static final String COL_USE_TIME = "use_time";
+    public static final String COL_LAST_USE_TIME = "last_use_time";
+    public static final String COL_USE_COUNT = "use_count";
     public static final String COL_EXPIRY_TIME = "expiry_time";
     public static final String COL_TARGET = "expiry_target";
 
-    /** KEY */
+    /**
+     * KEY
+     */
     @PrimaryKey(AssignType.BY_MYSELF)
     @Column(COL_KEY)
     private final String key;
-    /** 创建时间 */
+    /**
+     * 创建时间
+     */
     @Column(COL_CREATE_TIME)
     private long createTime;
-    /** 最后使用时间 */
-    @Column(COL_USE_TIME)
-    private long useTime;
-    /** 过期时间 */
+    /**
+     * 最后使用时间
+     */
+    @Column(COL_LAST_USE_TIME)
+    private long lastUseTime;
+    /**
+     * 总使用次数
+     */
+    @Column(COL_USE_COUNT)
+    private long useCount;
+    /**
+     * 过期时间
+     */
     @Column(COL_EXPIRY_TIME)
     private long expiryTime;
-    /** 缓存目标 */
+    /**
+     * 缓存目标
+     */
     @Column(COL_TARGET)
     private CacheTarget target;
     // TODO 有待商讨
 //    private long size;
 
-    public CacheEntry(String key, long createTime, long useTime, long expiryTime, CacheTarget target) {
+
+    public CacheEntry(String key, long maxAge, CacheTarget target) {
+        long currentTime = System.currentTimeMillis();
+
         this.key = key;
-        this.createTime = createTime;
-        this.useTime = useTime;
-        this.expiryTime = expiryTime;
+        this.createTime = currentTime;
+        this.lastUseTime = currentTime;
+        this.expiryTime = currentTime + maxAge;
         this.target = target;
+        this.useCount = 1;
     }
 
 
@@ -58,7 +78,8 @@ public class CacheEntry implements Serializable {
         return "CacheEntry{" +
                 "key='" + key + '\'' +
                 ", createTime=" + createTime +
-                ", useTime=" + useTime +
+                ", lastUseTime=" + lastUseTime +
+                ", useCount=" + useCount +
                 ", expiryTime=" + expiryTime +
                 ", target=" + target +
                 '}';
@@ -77,20 +98,20 @@ public class CacheEntry implements Serializable {
         this.createTime = createTime;
     }
 
-    public long getUseTime() {
-        return useTime;
+    public long getLastUseTime() {
+        return lastUseTime;
     }
 
-    public void setUseTime(long useTime) {
-        this.useTime = useTime;
+    public void setLastUseTime(long lastUseTime) {
+        this.lastUseTime = lastUseTime;
     }
 
-    public CacheTarget getTarget() {
-        return target;
+    public long getUseCount() {
+        return useCount;
     }
 
-    public void setTarget(CacheTarget target) {
-        this.target = target;
+    public void setUseCount(long useCount) {
+        this.useCount = useCount;
     }
 
     public long getExpiryTime() {
@@ -101,4 +122,11 @@ public class CacheEntry implements Serializable {
         this.expiryTime = expiryTime;
     }
 
+    public CacheTarget getTarget() {
+        return target;
+    }
+
+    public void setTarget(CacheTarget target) {
+        this.target = target;
+    }
 }

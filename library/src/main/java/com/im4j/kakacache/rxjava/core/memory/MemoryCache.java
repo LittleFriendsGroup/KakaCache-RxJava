@@ -35,16 +35,14 @@ public final class MemoryCache extends Cache {
     }
 
     @Override
-    protected <T> void doSave(String key, T value, int expires, CacheTarget target) throws CacheException {
+    protected <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException {
         if (target == null || target == CacheTarget.NONE || target == CacheTarget.Disk) {
             return;
         }
 
         // 写入缓存
         mStorage.save(key, value);
-        long currentTime = System.currentTimeMillis();
-        long expiresTime = currentTime + expires;
-        mJournal.put(key, new CacheEntry(key, currentTime, currentTime, expiresTime, target));
+        mJournal.put(key, new CacheEntry(key, maxAge, target));
     }
 
     @Override

@@ -57,10 +57,10 @@ public final class DiskCache extends Cache {
 
     /**
      * 保存
-     * @param expires 有效期（单位：毫秒）
+     * @param maxAge 最大有效期时长（单位：毫秒）
      */
     @Override
-    protected <T> void doSave(String key, T value, int expires, CacheTarget target) throws CacheException {
+    protected <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException {
         if (target == null || target == CacheTarget.NONE || target == CacheTarget.Memory) {
             return;
         }
@@ -71,9 +71,7 @@ public final class DiskCache extends Cache {
             mConverter.writer(sink, value);
             Utils.close(sink);
 
-            long currentTime = System.currentTimeMillis();
-            long expiresTime = currentTime + expires;
-            mJournal.put(key, new CacheEntry(key, currentTime, currentTime, expiresTime, target));
+            mJournal.put(key, new CacheEntry(key, maxAge, target));
         }
     }
 

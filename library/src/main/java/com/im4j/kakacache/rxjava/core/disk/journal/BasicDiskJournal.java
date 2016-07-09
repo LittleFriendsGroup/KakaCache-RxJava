@@ -36,7 +36,8 @@ public abstract class BasicDiskJournal implements IDiskJournal {
         if (entry != null) {
             // 有效期内，才记录最后使用时间
             if (entry.isExpiry()) {
-                entry.setUseTime(System.currentTimeMillis());
+                entry.setLastUseTime(System.currentTimeMillis());
+                entry.setUseCount(entry.getUseCount() + 1);
                 mLiteOrm.update(entry);
             }
             return entry;
@@ -51,7 +52,8 @@ public abstract class BasicDiskJournal implements IDiskJournal {
             throw new NullException("key == null || value == null");
         }
         if (entry.isExpiry()) {
-            entry.setUseTime(System.currentTimeMillis());
+            entry.setLastUseTime(System.currentTimeMillis());
+            entry.setUseCount(1);
             mLiteOrm.save(entry);
         } else {
             remove(key);

@@ -8,19 +8,19 @@ import com.litesuits.orm.db.assit.QueryBuilder;
 import java.util.List;
 
 /**
- * LRU缓存日志
+ * LFU缓存日志
  * @version alafighting 2016-07
  */
-public class LRUDiskJournal extends BasicDiskJournal {
+public class LFUDiskJournal extends BasicDiskJournal {
 
-    public LRUDiskJournal(LiteOrm liteOrm) {
+    public LFUDiskJournal(LiteOrm liteOrm) {
         super(liteOrm);
     }
 
     @Override
     public String getLoseKey() throws CacheException {
         QueryBuilder query = new QueryBuilder(CacheEntry.class);
-        query.orderBy(CacheEntry.COL_LAST_USE_TIME);
+        query.orderBy(CacheEntry.COL_USE_COUNT).appendOrderAscBy(CacheEntry.COL_LAST_USE_TIME);
         query.limit(0, 1);
         List<CacheEntry> list = getDb().query(query);
         if (list != null && list.size() >0) {
