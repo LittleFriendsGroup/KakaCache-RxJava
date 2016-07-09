@@ -39,15 +39,6 @@ public final class Utils {
         }
         return obj;
     }
-    /**
-     * 不为空
-     */
-    public static <T> T checkNotNull(T obj, String message) {
-        if (obj == null) {
-            throw new NullException(message);
-        }
-        return obj;
-    }
 
     /**
      * 不小于0
@@ -61,10 +52,7 @@ public final class Utils {
     }
 
     public static boolean isEmpty(String str) {
-        if (str == null || str.isEmpty()) {
-            return true;
-        }
-        return false;
+        return str == null || str.isEmpty();
     }
 
 
@@ -226,15 +214,6 @@ public final class Utils {
                 + context.getPackageName() + SEPARATOR + "cache" + SEPARATOR);
     }
     static File getDataCacheDir(Context context) {
-//        String dataDir = "/data";
-//
-//        File path = Environment.getDataDirectory();
-//        if (path != null) {
-//            dataDir = path.getAbsolutePath();
-//        }
-//        return new File(dataDir + SEPARATOR + "data"  + SEPARATOR
-//                + context.getPackageName() + SEPARATOR + "cache" + SEPARATOR);
-
         return context.getCacheDir();
     }
 

@@ -2,12 +2,10 @@ package com.im4j.kakacache.rxjava.demo;
 
 import com.im4j.kakacache.rxjava.common.utils.MemorySizeOf;
 
-import java.io.Serializable;
-
 /**
  * @version alafighting 2016-07
  */
-public class GithubRepoEntity implements MemorySizeOf.SizeOf, Serializable {
+public class GithubRepoEntity implements MemorySizeOf.SizeOf {
 
     private String id;
     private String name;

@@ -2,6 +2,7 @@ package com.im4j.kakacache.rxjava;
 
 import android.content.Context;
 
+import com.esotericsoftware.kryo.Kryo;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -12,6 +13,7 @@ import com.google.gson.JsonSerializer;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
+import com.im4j.kakacache.rxjava.core.disk.converter.KryoDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.converter.SerializableDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.journal.LRUDiskJournal;
 import com.im4j.kakacache.rxjava.core.disk.storage.FileDiskStorage;
@@ -74,7 +76,7 @@ public final class KakaCache {
             coreBuilder.disk(new FileDiskStorage(storageDir));
             coreBuilder.diskJournal(new LRUDiskJournal(liteOrm));
             coreBuilder.diskMax(30 * 1024 * 1024, 10 * 1000);
-            coreBuilder.diskConverter(new SerializableDiskConverter());
+            coreBuilder.diskConverter(new KryoDiskConverter(new Kryo()));
             CacheCore core = coreBuilder.create();
             cacheManager = new RxCacheManager(core, DEFAULT_EXPIRES);
         }
