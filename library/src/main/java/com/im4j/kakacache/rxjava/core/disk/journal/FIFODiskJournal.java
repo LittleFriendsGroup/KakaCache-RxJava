@@ -2,6 +2,7 @@ package com.im4j.kakacache.rxjava.core.disk.journal;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
+import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.litesuits.orm.LiteOrm;
 import com.litesuits.orm.db.assit.QueryBuilder;
@@ -12,19 +13,19 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * LRU缓存日志
+ * FIFO缓存日志
  * @version alafighting 2016-07
  */
-public class LRUDiskJournal extends BasicDiskJournal {
+public class FIFODiskJournal extends BasicDiskJournal {
 
-    public LRUDiskJournal(LiteOrm liteOrm) {
+    public FIFODiskJournal(LiteOrm liteOrm) {
         super(liteOrm);
     }
 
     @Override
     public String getLoseKey() throws CacheException {
         QueryBuilder query = new QueryBuilder(CacheEntry.class);
-        query.orderBy(CacheEntry.COL_USE_TIME);
+        query.orderBy(CacheEntry.COL_CREATE_TIME);
         query.limit(0, 1);
         List<CacheEntry> list = getDb().query(query);
         if (list != null && list.size() >0) {

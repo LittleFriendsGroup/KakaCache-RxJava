@@ -71,9 +71,9 @@ public final class DiskCache extends Cache {
             mConverter.writer(sink, value);
             Utils.close(sink);
 
-            long createTime = System.currentTimeMillis();
-            long expiresTime = createTime + expires;
-            mJournal.put(key, new CacheEntry(key, createTime, expiresTime, target));
+            long currentTime = System.currentTimeMillis();
+            long expiresTime = currentTime + expires;
+            mJournal.put(key, new CacheEntry(key, currentTime, currentTime, expiresTime, target));
         }
     }
 

@@ -42,9 +42,9 @@ public final class MemoryCache extends Cache {
 
         // 写入缓存
         mStorage.save(key, value);
-        long createTime = System.currentTimeMillis();
-        long expiresTime = createTime + expires;
-        mJournal.put(key, new CacheEntry(key, createTime, expiresTime, target));
+        long currentTime = System.currentTimeMillis();
+        long expiresTime = currentTime + expires;
+        mJournal.put(key, new CacheEntry(key, currentTime, currentTime, expiresTime, target));
     }
 
     @Override
