@@ -39,7 +39,7 @@ public class LRUMemoryJournal implements IMemoryJournal {
     @Override
     public boolean containsKey(String key) {
         CacheEntry entry = mKeyValue.get(key);
-        return entry != null && !entry.isExpiry();
+        return entry != null;
     }
 
     @Override

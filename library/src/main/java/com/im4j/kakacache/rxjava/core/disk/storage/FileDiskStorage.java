@@ -88,6 +88,9 @@ public class FileDiskStorage implements IDiskStorage {
 
     @Override
     public void remove(String key) throws CacheException {
+        if (Utils.isEmpty(key)) {
+            return;
+        }
         try {
             delete(new File(mStorageDir, key));
         } catch (IOException e) {
@@ -125,6 +128,9 @@ public class FileDiskStorage implements IDiskStorage {
     }
 
     public void delete(File file) throws IOException {
+        if (file == null) {
+            return;
+        }
         // If delete() fails, make sure it's because the file didn't exist!
         if (!file.delete() && file.exists()) {
             throw new IOException("failed to delete " + file);

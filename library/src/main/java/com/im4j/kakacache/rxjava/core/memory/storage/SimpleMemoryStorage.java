@@ -59,6 +59,9 @@ public class SimpleMemoryStorage implements IMemoryStorage {
 
     @Override
     public void remove(String key) throws CacheException {
+        if (Utils.isEmpty(key)) {
+            return;
+        }
         mStorageMap.remove(key);
     }
 
@@ -78,6 +81,10 @@ public class SimpleMemoryStorage implements IMemoryStorage {
     }
 
     private static long countSize(Object value) {
+        if (value == null) {
+            return 0;
+        }
+
         // FIXME 更优良的内存大小算法
         long size = 1;
         if (value instanceof MemorySizeOf.SizeOf) {
