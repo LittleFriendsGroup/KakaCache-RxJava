@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 日志项
  * @version 0.1 king 2016-04
  */
-public class CacheEntry implements Serializable {
+public class CacheEntry implements Serializable, Cloneable {
     public static final String COL_KEY = "key";
     public static final String COL_CREATE_TIME = "create_time";
     public static final String COL_LAST_USE_TIME = "last_use_time";
@@ -53,6 +53,14 @@ public class CacheEntry implements Serializable {
 //    private long size;
 
 
+    CacheEntry(CacheEntry entry) {
+        this.key = entry.key;
+        this.createTime = entry.createTime;
+        this.lastUseTime = entry.lastUseTime;
+        this.expiryTime = entry.expiryTime;
+        this.target = entry.target;
+        this.useCount = entry.useCount;
+    }
     public CacheEntry(String key, long maxAge, CacheTarget target) {
         long currentTime = System.currentTimeMillis();
 
@@ -72,6 +80,11 @@ public class CacheEntry implements Serializable {
         return System.currentTimeMillis() > expiryTime;
     }
 
+
+    @Override
+    public CacheEntry clone() {
+        return new CacheEntry(this);
+    }
 
     @Override
     public String toString() {

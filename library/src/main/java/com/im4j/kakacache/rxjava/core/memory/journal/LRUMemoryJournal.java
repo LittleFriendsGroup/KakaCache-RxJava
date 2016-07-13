@@ -10,61 +10,13 @@ import java.util.LinkedHashMap;
 
 /**
  * LRU缓存日志
- * @version alafighting 2016-06
+ * @version alafighting 2016-07
  */
-public class LRUMemoryJournal implements IMemoryJournal {
-
-    private final LinkedHashMap<String, CacheEntry> mKeyValue;
-
-    public LRUMemoryJournal() {
-        this.mKeyValue = new LinkedHashMap<>(0, 0.75f, true);
-    }
-
-    @Override
-    public CacheEntry get(String key) {
-        if (key == null) {
-            throw new NullException("key == null");
-        }
-        return mKeyValue.get(key);
-    }
-
-    @Override
-    public void put(String key, CacheEntry entry) {
-        if (key == null || entry == null) {
-            throw new NullException("key == null || value == null");
-        }
-        mKeyValue.put(key, entry);
-    }
-
-    @Override
-    public boolean containsKey(String key) {
-        CacheEntry entry = mKeyValue.get(key);
-        return entry != null;
-    }
+public class LRUMemoryJournal extends BasicMemoryJournal {
 
     @Override
     public String getLoseKey() throws CacheException {
-        return mKeyValue.entrySet().iterator().next().getKey();
-    }
-
-    @Override
-    public void remove(String key) {
-        mKeyValue.remove(key);
-    }
-
-    @Override
-    public void clear() {
-        mKeyValue.clear();
-    }
-
-    @Override
-    public Collection<CacheEntry> snapshot() {
-        return mKeyValue.values();
-    }
-
-    @Override
-    public void close() throws IOException {
-        // TODO Nothing
+        return getKeyValues().entrySet().iterator().next().getKey();
     }
 
 }

@@ -1,46 +1,44 @@
-package com.im4j.kakacache.rxjava.core.disk.journal;
+package com.im4j.kakacache.rxjava.core.memory.journal;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
-import com.litesuits.orm.LiteOrm;
-import com.litesuits.orm.db.assit.WhereBuilder;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 
 /**
  * 缓存日志-基类
  * @version alafighting 2016-07
  */
-public abstract class BasicDiskJournal implements IDiskJournal {
+public abstract class BasicMemoryJournal implements IMemoryJournal {
 
-    private final LiteOrm mLiteOrm;
+    private final LinkedHashMap<String, CacheEntry> mKeyValues;
 
-    public BasicDiskJournal(LiteOrm liteOrm) {
-        this.mLiteOrm = liteOrm;
+    public BasicMemoryJournal() {
+        this.mKeyValues = new LinkedHashMap<>(0, 0.75f, true);
     }
 
-    final LiteOrm getDb() {
-        return mLiteOrm;
+    final LinkedHashMap<String, CacheEntry> getKeyValues() {
+        return mKeyValues;
     }
 
     @Override
-    public final CacheEntry get(String key) {
+    public CacheEntry get(String key) {
         if (Utils.isEmpty(key)) {
             throw new NullException("key == null");
         }
 
-        CacheEntry entry = mLiteOrm.queryById(key, CacheEntry.class);
+        CacheEntry entry = mKeyValues.get(key);
         if (entry != null) {
             // 有效期内，才记录最后使用时间
             if (entry.isExpiry()) {
                 entry.setLastUseTime(System.currentTimeMillis());
                 entry.setUseCount(entry.getUseCount() + 1);
-                mLiteOrm.update(entry);
             }
-            return entry;
+            return entry.clone();
         } else {
             return null;
         }
@@ -51,18 +49,24 @@ public abstract class BasicDiskJournal implements IDiskJournal {
         if (Utils.isEmpty(key) || entry == null) {
             throw new NullException("key == null || value == null");
         }
+
         if (entry.isExpiry()) {
             entry.setLastUseTime(System.currentTimeMillis());
             entry.setUseCount(1);
-            mLiteOrm.save(entry);
+            mKeyValues.put(key, entry);
         } else {
             remove(key);
         }
+        mKeyValues.put(key, entry);
     }
 
     @Override
-    public final boolean containsKey(String key) {
-        CacheEntry entry = get(key);
+    public boolean containsKey(String key) {
+        if (Utils.isEmpty(key)) {
+            throw new NullException("key == null");
+        }
+
+        CacheEntry entry = mKeyValues.get(key);
         return entry != null;
     }
 
@@ -70,25 +74,27 @@ public abstract class BasicDiskJournal implements IDiskJournal {
     public abstract String getLoseKey() throws CacheException;
 
     @Override
-    public final void remove(String key) {
-        mLiteOrm.delete(new WhereBuilder(CacheEntry.class)
-                .where(CacheEntry.COL_KEY + " = ?", new String[]{"%"+key+"%"}));
+    public void remove(String key) {
+        if (Utils.isEmpty(key)) {
+            throw new NullException("key == null");
+        }
+
+        mKeyValues.remove(key);
     }
 
     @Override
-    public final void clear() {
-        mLiteOrm.deleteAll(CacheEntry.class);
+    public void clear() {
+        mKeyValues.clear();
     }
 
     @Override
-    public final Collection<CacheEntry> snapshot() {
-        return mLiteOrm.query(CacheEntry.class);
+    public Collection<CacheEntry> snapshot() {
+        return mKeyValues.values();
     }
 
     @Override
     public void close() throws IOException {
         // TODO Nothing
-        //mLiteOrm.close();
     }
 
 }
