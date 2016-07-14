@@ -7,10 +7,9 @@ import android.widget.Button;
 
 import com.im4j.kakacache.rxjava.KakaCache;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
-import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
+import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
      */
     void demoForNormal() {
         service.listReposForNormal("alafighting")
-                .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
+                .compose(KakaCache.transformer(KEY_CACHE, CacheStrategy.FirstCache))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(data -> {

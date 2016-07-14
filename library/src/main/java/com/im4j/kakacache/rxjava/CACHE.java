@@ -1,7 +1,6 @@
 package com.im4j.kakacache.rxjava;
 
 import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
-import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -31,6 +30,6 @@ public @interface CACHE {
      * 缓存策略
      * @return
      */
-    Class<? extends CacheStrategy> strategy() default FirstCacheStrategy.class;
+    CacheStrategy strategy() default CacheStrategy.FirstCache;
 
 }

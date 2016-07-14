@@ -14,7 +14,6 @@ import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.disk.converter.KryoDiskConverter;
-import com.im4j.kakacache.rxjava.core.disk.converter.SerializableDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.journal.LRUDiskJournal;
 import com.im4j.kakacache.rxjava.core.disk.storage.FileDiskStorage;
 import com.im4j.kakacache.rxjava.core.memory.journal.LRUMemoryJournal;

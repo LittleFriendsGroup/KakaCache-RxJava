@@ -2,7 +2,7 @@ package com.im4j.kakacache.rxjava.demo;
 
 import com.im4j.kakacache.rxjava.CACHE;
 import com.im4j.kakacache.rxjava.netcache.ResultData;
-import com.im4j.kakacache.rxjava.netcache.strategy.CacheAndRemoteStrategy;
+import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public interface GitHubService {
     rx.Observable<List<GithubRepoEntity>> listReposForNormal(@Path("user") String user);
 
     @GET("users/{user}/repos")
-    @CACHE(value = "custom_key_listRepos", strategy = CacheAndRemoteStrategy.class)
+    @CACHE(value = "custom_key_listRepos", strategy = CacheStrategy.CacheAndRemote)
     rx.Observable<ResultData<List<GithubRepoEntity>>> listReposForKaka(@Path("user") String user);
 
 }

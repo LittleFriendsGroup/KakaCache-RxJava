@@ -4,7 +4,7 @@ import com.im4j.kakacache.rxjava.KakaCache;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.netcache.ResultData;
-import com.im4j.kakacache.rxjava.netcache.strategy.FirstCacheStrategy;
+import com.im4j.kakacache.rxjava.netcache.strategy.CacheStrategy;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
@@ -108,11 +108,11 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
                     LogUtils.log("fileName="+info.getKey());
 
                     if (info.getStrategy() == null) {
-                        info.setStrategy(FirstCacheStrategy.class);
+                        info.setStrategy(CacheStrategy.FirstCache);
                     }
 
                     return callAdapter.doAdaptUnwrap(call)
-                            .compose(KakaCache.transformer(info.getKey(), Utils.newInstance(info.getStrategy())));
+                            .compose(KakaCache.transformer(info.getKey(), info.getStrategy()));
                 }
 
                 return callAdapter.doAdaptUnwrap(call);

@@ -30,7 +30,7 @@ public class CacheInfo {
 
     private String key;
     private boolean enable;
-    private Class<? extends CacheStrategy> strategy;
+    private CacheStrategy strategy;
 
     public CacheInfo() {
     }
@@ -40,7 +40,7 @@ public class CacheInfo {
         return "CacheInfo{" +
                 "key='" + key + '\'' +
                 ", enable=" + enable +
-                ", strategy=" + strategy.getSimpleName() +
+                ", strategy=" + strategy.name() +
                 '}';
     }
 
@@ -60,11 +60,11 @@ public class CacheInfo {
         this.enable = enable;
     }
 
-    public Class<? extends CacheStrategy> getStrategy() {
+    public CacheStrategy getStrategy() {
         return strategy;
     }
 
-    public void setStrategy(Class<? extends CacheStrategy> strategy) {
+    public void setStrategy(CacheStrategy strategy) {
         this.strategy = strategy;
     }
 }
