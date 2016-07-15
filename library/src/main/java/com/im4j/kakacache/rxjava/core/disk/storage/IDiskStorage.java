@@ -1,11 +1,10 @@
 package com.im4j.kakacache.rxjava.core.disk.storage;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.Source;
 
 import java.io.Closeable;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 磁盘存储
@@ -18,19 +17,13 @@ public interface IDiskStorage extends Closeable {
      * @param key
      * @return
      */
-    Source load(String key) throws CacheException;
+    InputStream load(String key) throws CacheException;
 
     /**
      * 创建数据槽
      * @param key
      */
-    Sink create(String key) throws CacheException;
-
-    /**
-     * 快照
-     * @return
-     */
-    Map<String, ? extends Source> snapshot();
+    OutputStream create(String key) throws CacheException;
 
 
 

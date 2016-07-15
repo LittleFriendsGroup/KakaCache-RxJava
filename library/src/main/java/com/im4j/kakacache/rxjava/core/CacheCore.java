@@ -60,6 +60,9 @@ public class CacheCore {
         }
 
         if (memory != null) {
+            // TODO value = value.clone() 避免内存存储对象引用？
+            // TODO clone拷贝造成双倍内存开销？
+            // TODO 被缓存的对象，一般不做修改，只做读取
             memory.save(key, value, expires, target);
         }
         if (disk != null) {

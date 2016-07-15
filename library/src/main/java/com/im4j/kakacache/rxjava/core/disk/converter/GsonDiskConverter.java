@@ -5,11 +5,11 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.ReaderSource;
-import com.im4j.kakacache.rxjava.core.disk.source.Source;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 /**
@@ -24,23 +24,22 @@ public class GsonDiskConverter implements IDiskConverter {
     }
 
     @Override
-    public Object load(Source source, Type type) {
+    public Object load(InputStream source, Type type) {
         Object value = null;
-        ReaderSource readerSource = new ReaderSource(source);
         try {
-            value = gson.fromJson(readerSource, type);
+            value = gson.fromJson(new InputStreamReader(source), type);
         } catch (JsonIOException e) {
             LogUtils.log(e);
         } catch (JsonSyntaxException e) {
             LogUtils.log(e);
         } finally {
-            Utils.close(readerSource);
+            Utils.close(source);
         }
         return value;
     }
 
     @Override
-    public void writer(Sink sink, Object data) {
+    public void writer(OutputStream sink, Object data) {
         try {
             String json = gson.toJson(data);
             byte[] bytes = json.getBytes();

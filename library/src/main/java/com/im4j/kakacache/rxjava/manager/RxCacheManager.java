@@ -61,6 +61,7 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<T>() {
             @Override
             T execute() {
+                // TODO 是否需要加锁？避免脏数据
                 LogUtils.debug("loadCache  key="+key);
                 return cache.load(key);
             }

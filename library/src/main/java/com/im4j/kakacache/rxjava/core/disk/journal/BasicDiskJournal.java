@@ -47,7 +47,7 @@ public abstract class BasicDiskJournal implements IDiskJournal {
     }
 
     @Override
-    public final void put(String key, CacheEntry entry) {
+    public void put(String key, CacheEntry entry) {
         if (Utils.isEmpty(key) || entry == null) {
             throw new NullException("key == null || value == null");
         }

@@ -8,10 +8,10 @@ import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.disk.converter.IDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.journal.IDiskJournal;
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.Source;
 import com.im4j.kakacache.rxjava.core.disk.storage.IDiskStorage;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collection;
 
 /**
@@ -46,7 +46,7 @@ public final class DiskCache extends Cache {
     @Override
     protected <T> T doLoad(String key) throws CacheException {
         // 读取缓存
-        Source source = mStorage.load(key);
+        InputStream source = mStorage.load(key);
         T value = null;
         if (source != null) {
             value = (T) mConverter.load(source, new TypeToken<T>(){}.getType());
@@ -66,7 +66,7 @@ public final class DiskCache extends Cache {
         }
 
         // 写入缓存
-        Sink sink = mStorage.create(key);
+        OutputStream sink = mStorage.create(key);
         if (sink != null) {
             mConverter.writer(sink, value);
             Utils.close(sink);

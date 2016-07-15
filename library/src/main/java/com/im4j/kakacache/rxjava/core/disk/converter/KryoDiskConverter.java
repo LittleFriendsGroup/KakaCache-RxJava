@@ -4,11 +4,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.core.disk.sink.BasicSink;
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.BasicSource;
-import com.im4j.kakacache.rxjava.core.disk.source.Source;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 /**
@@ -23,11 +21,11 @@ public class KryoDiskConverter implements IDiskConverter {
     }
 
     @Override
-    public Object load(Source source, Type type) {
+    public Object load(InputStream source, Type type) {
         Object value = null;
         Input input = null;
         try {
-            input = new Input(new BasicSource(source));
+            input = new Input(source);
             value = kryo.readClassAndObject(input);
         } finally {
             Utils.close(input);
@@ -36,10 +34,10 @@ public class KryoDiskConverter implements IDiskConverter {
     }
 
     @Override
-    public void writer(Sink sink, Object data) {
+    public void writer(OutputStream sink, Object data) {
         Output output = null;
         try {
-            output = new Output(new BasicSink(sink));
+            output = new Output(sink);
             kryo.writeClassAndObject(output, data);
         } finally {
             Utils.close(output);

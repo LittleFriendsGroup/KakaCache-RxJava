@@ -4,14 +4,12 @@ import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.core.disk.sink.FileSink;
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.FileSource;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 文件形式的磁盘存储
@@ -33,7 +31,7 @@ public class FileDiskStorage implements IDiskStorage {
     }
 
     @Override
-    public FileSource load(String key) throws CacheException {
+    public FileInputStream load(String key) throws CacheException {
         if (Utils.isEmpty(key)) {
             return null;
         }
@@ -41,11 +39,15 @@ public class FileDiskStorage implements IDiskStorage {
         if (!file.exists() || !file.isFile()) {
             return null;
         }
-        return new FileSource(file);
+        try {
+            return new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new NotFoundException(e);
+        }
     }
 
     @Override
-    public Sink create(String key) throws CacheException {
+    public FileOutputStream create(String key) throws CacheException {
         if (Utils.isEmpty(key)) {
             return null;
         }
@@ -59,21 +61,11 @@ public class FileDiskStorage implements IDiskStorage {
                 return null;
             }
         }
-        return new FileSink(file);
-    }
-
-    @Override
-    public Map<String, FileSource> snapshot() {
-        Map<String, FileSource> sourceMap = new HashMap<>();
-
-        File[] files = mStorageDir.listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                sourceMap.put(file.getName(), new FileSource(file));
-            }
+        try {
+            return new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            throw new NotFoundException(e);
         }
-
-        return sourceMap;
     }
 
     @Override

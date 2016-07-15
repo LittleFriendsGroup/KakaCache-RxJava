@@ -45,7 +45,7 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
     }
 
     @Override
-    public final void put(String key, CacheEntry entry) {
+    public void put(String key, CacheEntry entry) {
         if (Utils.isEmpty(key) || entry == null) {
             throw new NullException("key == null || value == null");
         }

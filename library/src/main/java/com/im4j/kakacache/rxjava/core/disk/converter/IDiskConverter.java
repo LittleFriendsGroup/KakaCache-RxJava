@@ -1,8 +1,7 @@
 package com.im4j.kakacache.rxjava.core.disk.converter;
 
-import com.im4j.kakacache.rxjava.core.disk.sink.Sink;
-import com.im4j.kakacache.rxjava.core.disk.source.Source;
-
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 /**
@@ -18,7 +17,7 @@ public interface IDiskConverter {
      * @param source
      * @return
      */
-    Object load(Source source, Type type);
+    Object load(InputStream source, Type type);
 
     /**
      * 写入
@@ -27,6 +26,6 @@ public interface IDiskConverter {
      * @param data
      * @return
      */
-    void writer(Sink sink, Object data);
+    void writer(OutputStream sink, Object data);
 
 }

@@ -3,7 +3,6 @@ package com.im4j.kakacache.rxjava.core.memory.storage;
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
 
 import java.io.Closeable;
-import java.util.Map;
 
 /**
  * 内存存储
@@ -24,12 +23,6 @@ public interface IMemoryStorage extends Closeable {
      * @param value
      */
     void save(String key, Object value) throws CacheException;
-
-    /**
-     * 快照
-     * @return
-     */
-    Map<String, Object> snapshot();
 
 
     /**

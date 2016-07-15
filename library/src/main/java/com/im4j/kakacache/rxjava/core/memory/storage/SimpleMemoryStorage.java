@@ -43,11 +43,6 @@ public class SimpleMemoryStorage implements IMemoryStorage {
     }
 
     @Override
-    public Map<String, Object> snapshot() {
-        return new HashMap<>(mStorageMap);
-    }
-
-    @Override
     public void close() {
         this.mIsClose = true;
     }
