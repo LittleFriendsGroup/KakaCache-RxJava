@@ -23,7 +23,6 @@ import okio.ByteString;
 
 /**
  * 工具类
- * @version alafighting 2016-04
  */
 public final class Utils {
 
@@ -62,58 +61,6 @@ public final class Utils {
                     + "; regionStart=" + offset
                     + "; regionLength=" + count);
         }
-    }
-
-    /**
-     * 取父类泛型
-     * @param clazz
-     * @return 没有则返回null
-     */
-    @SuppressWarnings("rawtypes")
-    public static Type[] getGenericSuperclass(Class<?> clazz) {
-        try {
-            Type typeGeneric = clazz.getGenericSuperclass();
-            if (typeGeneric != null) {
-                if (typeGeneric instanceof ParameterizedType) {
-                    return getGeneric((ParameterizedType) typeGeneric);
-                }
-            }
-        } catch (Exception e) {
-        }
-        return null;
-    }
-    /**
-     * 取父接口泛型
-     * @param clazz
-     * @return 没有则返回null
-     */
-    @SuppressWarnings("rawtypes")
-    public static Type[] getGenericInterfaces(Class<?> clazz) {
-        try {
-            Type typeGeneric = clazz.getGenericInterfaces()[0];
-            if (typeGeneric != null) {
-                if (typeGeneric instanceof ParameterizedType) {
-                    return getGeneric((ParameterizedType) typeGeneric);
-                }
-            }
-        } catch (Exception e) {
-        }
-        return null;
-    }
-    /**
-     * 取泛型
-     * @param type
-     * @return 没有则返回null
-     */
-    @SuppressWarnings("rawtypes")
-    public static Type[] getGeneric(ParameterizedType type) {
-        try {
-            if (type != null) {
-                return type.getActualTypeArguments();
-            }
-        } catch (Exception e) {
-        }
-        return null;
     }
 
     public static Class<?> getRawType(Type type) {
@@ -172,7 +119,6 @@ public final class Utils {
         str.append('[');
         str.append(request.url());
         str.append(']');
-
 
         try {
             Buffer buffer = new Buffer();
