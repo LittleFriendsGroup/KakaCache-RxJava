@@ -1,15 +1,10 @@
 package com.im4j.kakacache.rxjava.core.disk.journal;
 
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
-import com.im4j.kakacache.rxjava.common.exception.NullException;
-import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.litesuits.orm.LiteOrm;
 import com.litesuits.orm.db.assit.QueryBuilder;
-import com.litesuits.orm.db.assit.WhereBuilder;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**

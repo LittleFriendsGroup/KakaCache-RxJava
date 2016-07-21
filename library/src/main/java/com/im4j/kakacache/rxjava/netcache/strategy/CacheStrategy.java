@@ -60,7 +60,7 @@ public enum CacheStrategy {
     protected <T> Observable<ResultData<T>> loadRemote(String key, Observable<T> source) {
         return source.map(it -> {
             LogUtils.debug("loadRemote result="+it);
-            KakaCache.manager().save(key, it).subscribe(status -> LogUtils.log("save status => "+status) );
+            KakaCache.manager().save(key, it).subscribe(status -> LogUtils.debug("save status => "+status) );
             return new ResultData<>(ResultFrom.Remote, key, it);
         });
     }

@@ -94,7 +94,7 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
             if (ResultData.class.equals(Utils.getRawType(responseType()))) {
                 // 启用缓存
                 CacheInfo info = CacheInfo.get(annotations);
-                LogUtils.log(info);
+                LogUtils.debug(info);
                 if (info.isEnable()) {
                     // 处理缓存
 
@@ -105,7 +105,7 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
                         info.setKey(ByteString.of(key.getBytes()).md5().hex());
                     }
 
-                    LogUtils.log("fileName="+info.getKey());
+                    LogUtils.debug("fileName="+info.getKey());
 
                     if (info.getStrategy() == null) {
                         info.setStrategy(CacheStrategy.FirstCache);
