@@ -39,8 +39,6 @@ public class RxCacheManager {
     }
 
 
-    private final Object lock = new Object();
-
     private CacheCore cache;
     private int defaultExpires;
 
@@ -61,7 +59,6 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<T>() {
             @Override
             T execute() {
-                // TODO 是否需要加锁？避免脏数据
                 LogUtils.debug("loadCache  key="+key);
                 return cache.load(key);
             }
@@ -82,10 +79,7 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {
-                // 同步
-                synchronized(lock) {
-                    cache.save(key, value, expires, target);
-                }
+                cache.save(key, value, expires, target);
                 return true;
             }
         });
@@ -114,9 +108,7 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {
-                synchronized(lock) {
-                    cache.remove(key);
-                }
+                cache.remove(key);
                 return true;
             }
         });
@@ -129,10 +121,7 @@ public class RxCacheManager {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {
-                // 同步
-                synchronized(lock) {
-                    cache.clear();
-                }
+                cache.clear();
                 return true;
             }
         });

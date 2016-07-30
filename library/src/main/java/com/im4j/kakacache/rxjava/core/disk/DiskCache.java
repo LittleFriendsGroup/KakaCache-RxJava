@@ -82,18 +82,18 @@ public final class DiskCache extends Cache {
     }
 
     @Override
-    public boolean containsKey(String key) {
+    protected boolean doContainsKey(String key) {
         return mJournal.containsKey(key);
     }
 
     @Override
-    public void remove(String key) throws CacheException {
+    protected void doRemove(String key) throws CacheException {
         mStorage.remove(key);
         mJournal.remove(key);
     }
 
     @Override
-    public void clear() throws CacheException {
+    protected void doClear() throws CacheException {
         mStorage.clear();
         mJournal.clear();
     }

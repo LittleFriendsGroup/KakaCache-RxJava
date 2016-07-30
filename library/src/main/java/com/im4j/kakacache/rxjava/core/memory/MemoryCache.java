@@ -52,7 +52,7 @@ public final class MemoryCache extends Cache {
     }
 
     @Override
-    public boolean containsKey(String key) {
+    protected boolean doContainsKey(String key) {
         return mJournal.containsKey(key);
     }
 
@@ -60,7 +60,8 @@ public final class MemoryCache extends Cache {
      * 删除缓存
      * @param key
      */
-    public void remove(String key) throws CacheException {
+    @Override
+    protected void doRemove(String key) throws CacheException {
         mStorage.remove(key);
         mJournal.remove(key);
     }
@@ -68,7 +69,8 @@ public final class MemoryCache extends Cache {
     /**
      * 清空缓存
      */
-    public void clear() throws CacheException {
+    @Override
+    protected void doClear() throws CacheException {
         mStorage.clear();
         mJournal.clear();
     }

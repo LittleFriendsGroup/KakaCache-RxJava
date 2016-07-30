@@ -4,6 +4,8 @@ import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.util.Collection;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * 缓存基类
@@ -13,6 +15,7 @@ public abstract class Cache {
 
     protected final long mMaxSize;
     protected final long mMaxQuantity;
+    private final ReadWriteLock mLock = new ReentrantReadWriteLock();
 
     public Cache(long maxSize, long maxQuantity) {
         this.mMaxSize = maxSize;
@@ -39,8 +42,13 @@ public abstract class Cache {
             return null;
         }
 
-        // 读取缓存
-        return doLoad(key);
+        mLock.readLock().lock();
+        try {
+            // 读取缓存
+            return doLoad(key);
+        } finally {
+            mLock.readLock().unlock();
+        }
     }
 
     /**
@@ -65,8 +73,13 @@ public abstract class Cache {
 
         // TODO 先写入，后清理。会超出限定条件，需要一定交换空间
 
-        // 写入缓存
-        doSave(key, value, maxAge, target);
+        mLock.writeLock().lock();
+        try {
+            // 写入缓存
+            doSave(key, value, maxAge, target);
+        } finally {
+            mLock.writeLock().unlock();
+        }
 
         // 清理无用数据
         clearUnused();
@@ -89,18 +102,57 @@ public abstract class Cache {
      * @param key
      * @return
      */
-    public abstract boolean containsKey(String key);
+    public final boolean containsKey(String key) {
+        mLock.writeLock().lock();
+        try {
+            return doContainsKey(key);
+        } finally {
+            mLock.writeLock().unlock();
+        }
+    }
 
     /**
      * 删除缓存
      * @param key
      */
-    public abstract void remove(String key) throws CacheException;
+    public final void remove(String key) throws CacheException {
+        mLock.writeLock().lock();
+        try {
+            doRemove(key);
+        } finally {
+            mLock.writeLock().unlock();
+        }
+    }
 
     /**
      * 清空缓存
      */
-    public abstract void clear() throws CacheException;
+    public final void clear() throws CacheException {
+        mLock.writeLock().lock();
+        try {
+            doClear();
+        } finally {
+            mLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * 是否包含
+     * @param key
+     * @return
+     */
+    protected abstract boolean doContainsKey(String key);
+
+    /**
+     * 删除缓存
+     * @param key
+     */
+    protected abstract void doRemove(String key) throws CacheException;
+
+    /**
+     * 清空缓存
+     */
+    protected abstract void doClear() throws CacheException;
 
 
     /**

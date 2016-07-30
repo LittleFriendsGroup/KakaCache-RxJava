@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 简单的磁盘存储
+ * 简单的内存存储
  * @version alafighting 2016-06
  */
 public class SimpleMemoryStorage implements IMemoryStorage {
