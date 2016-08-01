@@ -107,11 +107,11 @@ public final class Utils {
     }
 
     /**
-     * 根据Request生成唯一KEY
+     * 根据Request生成哈希值
      * @param request
      * @return
      */
-    public static String buildKey(Request request) {
+    public static String getHash(Request request) {
         StringBuilder str = new StringBuilder();
         str.append('[');
         str.append(request.method());

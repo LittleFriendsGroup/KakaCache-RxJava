@@ -34,7 +34,7 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
         return new KakaRxCallAdapterFactory(null);
     }
 
-    public static KakaRxCallAdapterFactory createWithScheduler(Scheduler scheduler) {
+    public static KakaRxCallAdapterFactory create(Scheduler scheduler) {
         if (scheduler == null) throw new NullPointerException("scheduler == null");
         return new KakaRxCallAdapterFactory(scheduler);
     }
@@ -100,8 +100,8 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
 
                     if (Utils.isEmpty(info.getKey())) {
                         // 生成KEY
-                        String key = Utils.buildKey(call.request());
-                        LogUtils.log("buildKey="+key);
+                        String key = Utils.getHash(call.request());
+                        LogUtils.debug("Request Hash="+key);
                         info.setKey(ByteString.of(key.getBytes()).md5().hex());
                     }
 

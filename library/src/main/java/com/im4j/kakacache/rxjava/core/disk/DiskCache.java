@@ -1,7 +1,7 @@
 package com.im4j.kakacache.rxjava.core.disk;
 
+import com.google.gson.reflect.TypeToken;
 import com.im4j.kakacache.rxjava.common.exception.CacheException;
-import com.im4j.kakacache.rxjava.common.utils.TypeToken;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.Cache;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
