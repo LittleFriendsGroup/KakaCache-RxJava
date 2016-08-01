@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.manager;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
@@ -117,7 +116,7 @@ public class RxCacheManager {
     /**
      * 清空缓存
      */
-    public rx.Observable<Boolean> clear() throws CacheException {
+    public rx.Observable<Boolean> clear() {
         return rx.Observable.create(new SimpleSubscribe<Boolean>() {
             @Override
             Boolean execute() throws Throwable {

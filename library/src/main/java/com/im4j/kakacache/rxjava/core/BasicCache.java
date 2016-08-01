@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.util.Collection;
@@ -11,13 +10,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 缓存基类
  * @version alafighting 2016-04
  */
-public abstract class Cache {
+public abstract class BasicCache {
 
     protected final long mMaxSize;
     protected final long mMaxQuantity;
     private final ReadWriteLock mLock = new ReentrantReadWriteLock();
 
-    public Cache(long maxSize, long maxQuantity) {
+    public BasicCache(long maxSize, long maxQuantity) {
         this.mMaxSize = maxSize;
         this.mMaxQuantity = maxQuantity;
     }
@@ -29,7 +28,7 @@ public abstract class Cache {
      * @param <T>
      * @return
      */
-    public final <T> T load(String key) throws CacheException {
+    public final <T> T load(String key) {
         Utils.checkNotNull(key);
 
         if (!containsKey(key)) {
@@ -57,39 +56,39 @@ public abstract class Cache {
      * @param <T>
      * @return
      */
-    protected abstract <T> T doLoad(String key) throws CacheException;
+    protected abstract <T> T doLoad(String key);
 
     /**
      * 保存
      * @param maxAge 最大有效期时长（单位：秒）
      */
-    public final <T> void save(String key, T value, int maxAge, CacheTarget target) throws CacheException {
+    public final <T> boolean save(String key, T value, int maxAge, CacheTarget target) {
         Utils.checkNotNull(key);
 
         if (value == null) {
-            remove(key);
-            return;
+            return remove(key);
         }
 
         // TODO 先写入，后清理。会超出限定条件，需要一定交换空间
-
+        boolean status = false;
         mLock.writeLock().lock();
         try {
             // 写入缓存
-            doSave(key, value, maxAge, target);
+            status = doSave(key, value, maxAge, target);
         } finally {
             mLock.writeLock().unlock();
         }
 
         // 清理无用数据
         clearUnused();
+        return status;
     }
 
     /**
      * 保存
      * @param maxAge 最长有效期时长（单位：毫秒）
      */
-    protected abstract <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException;
+    protected abstract <T> boolean doSave(String key, T value, int maxAge, CacheTarget target);
 
 
     /**
@@ -115,10 +114,10 @@ public abstract class Cache {
      * 删除缓存
      * @param key
      */
-    public final void remove(String key) throws CacheException {
+    public final boolean remove(String key) {
         mLock.writeLock().lock();
         try {
-            doRemove(key);
+            return doRemove(key);
         } finally {
             mLock.writeLock().unlock();
         }
@@ -127,10 +126,10 @@ public abstract class Cache {
     /**
      * 清空缓存
      */
-    public final void clear() throws CacheException {
+    public final boolean clear() {
         mLock.writeLock().lock();
         try {
-            doClear();
+            return doClear();
         } finally {
             mLock.writeLock().unlock();
         }
@@ -147,12 +146,12 @@ public abstract class Cache {
      * 删除缓存
      * @param key
      */
-    protected abstract void doRemove(String key) throws CacheException;
+    protected abstract boolean doRemove(String key);
 
     /**
      * 清空缓存
      */
-    protected abstract void doClear() throws CacheException;
+    protected abstract boolean doClear();
 
 
     /**
@@ -165,7 +164,7 @@ public abstract class Cache {
      * 获取准备丢弃的Key
      * @return 准备丢弃的Key（如存储空间不足时，需要清理）
      */
-    public abstract String getLoseKey() throws CacheException;
+    public abstract String getLoseKey();
 
     /**
      * 缓存大小

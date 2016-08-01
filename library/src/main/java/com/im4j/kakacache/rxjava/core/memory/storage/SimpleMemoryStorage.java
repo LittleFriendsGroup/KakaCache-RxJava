@@ -2,7 +2,6 @@ package com.im4j.kakacache.rxjava.core.memory.storage;
 
 import android.graphics.Bitmap;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.LogUtils;
 import com.im4j.kakacache.rxjava.common.utils.MemorySizeOf;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
@@ -18,15 +17,13 @@ import java.util.Map;
 public class SimpleMemoryStorage implements IMemoryStorage {
 
     private Map<String, Object> mStorageMap;
-    private boolean mIsClose = true;
 
     public SimpleMemoryStorage() {
         this.mStorageMap = new HashMap<>();
-        this.mIsClose = false;
     }
 
     @Override
-    public Object load(String key) throws CacheException {
+    public Object load(String key) {
         if (Utils.isEmpty(key)) {
             return null;
         }
@@ -34,35 +31,31 @@ public class SimpleMemoryStorage implements IMemoryStorage {
     }
 
     @Override
-    public void save(String key, Object value) throws CacheException {
+    public boolean save(String key, Object value) {
         if (Utils.isEmpty(key)) {
-            return;
+            return true;
         }
 
-        mStorageMap.put(key, value);
+        return mStorageMap.put(key, value) != null;
     }
 
     @Override
     public void close() {
-        this.mIsClose = true;
+        // TODO Nothing
     }
 
     @Override
-    public boolean isClosed() {
-        return mIsClose;
-    }
-
-    @Override
-    public void remove(String key) throws CacheException {
+    public boolean remove(String key) {
         if (Utils.isEmpty(key)) {
-            return;
+            return true;
         }
-        mStorageMap.remove(key);
+        return mStorageMap.remove(key) != null;
     }
 
     @Override
-    public void clear() throws CacheException {
+    public boolean clear() {
         mStorageMap.clear();
+        return true;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.im4j.kakacache.rxjava.core.memory.storage;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
-
 import java.io.Closeable;
 
 /**
@@ -15,38 +13,32 @@ public interface IMemoryStorage extends Closeable {
      * @param key
      * @return
      */
-    Object load(String key) throws CacheException;
+    Object load(String key);
 
     /**
      * 保存
      * @param key
      * @param value
      */
-    void save(String key, Object value) throws CacheException;
+    boolean save(String key, Object value);
 
 
     /**
      * 关闭
      */
     @Override
-    void close() throws CacheException;
-
-    /**
-     * 是否已关闭
-     * @return
-     */
-    boolean isClosed();
+    void close();
 
     /**
      * 删除缓存
      * @param key
      */
-    void remove(String key) throws CacheException;
+    boolean remove(String key);
 
     /**
      * 清空缓存
      */
-    void clear() throws CacheException;
+    boolean clear();
 
     /**
      * 缓存总大小

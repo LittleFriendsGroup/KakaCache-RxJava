@@ -1,9 +1,8 @@
 package com.im4j.kakacache.rxjava.core.disk;
 
 import com.google.gson.reflect.TypeToken;
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.core.Cache;
+import com.im4j.kakacache.rxjava.core.BasicCache;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.disk.converter.IDiskConverter;
@@ -18,7 +17,7 @@ import java.util.Collection;
  * 磁盘缓存
  * @version 0.1 king 2016-04
  */
-public final class DiskCache extends Cache {
+public final class DiskCache extends BasicCache {
 
     private final IDiskStorage mStorage;
     private final IDiskJournal mJournal;
@@ -44,7 +43,7 @@ public final class DiskCache extends Cache {
      */
 
     @Override
-    protected <T> T doLoad(String key) throws CacheException {
+    protected <T> T doLoad(String key) {
         // 读取缓存
         InputStream source = mStorage.load(key);
         T value = null;
@@ -60,9 +59,9 @@ public final class DiskCache extends Cache {
      * @param maxAge 最大有效期时长（单位：毫秒）
      */
     @Override
-    protected <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException {
+    protected <T> boolean doSave(String key, T value, int maxAge, CacheTarget target) {
         if (target == null || target == CacheTarget.NONE || target == CacheTarget.Memory) {
-            return;
+            return true;
         }
 
         // 写入缓存
@@ -72,7 +71,10 @@ public final class DiskCache extends Cache {
             Utils.close(sink);
 
             mJournal.put(key, new CacheEntry(key, maxAge, target));
+            return true;
         }
+
+        return false;
     }
 
     @Override
@@ -87,15 +89,13 @@ public final class DiskCache extends Cache {
     }
 
     @Override
-    protected void doRemove(String key) throws CacheException {
-        mStorage.remove(key);
-        mJournal.remove(key);
+    protected boolean doRemove(String key) {
+        return mStorage.remove(key) && mJournal.remove(key);
     }
 
     @Override
-    protected void doClear() throws CacheException {
-        mStorage.clear();
-        mJournal.clear();
+    protected boolean doClear() {
+        return mStorage.clear() && mJournal.clear();
     }
 
     @Override
@@ -104,7 +104,7 @@ public final class DiskCache extends Cache {
     }
 
     @Override
-    public String getLoseKey() throws CacheException {
+    public String getLoseKey() {
         return mJournal.getLoseKey();
     }
 

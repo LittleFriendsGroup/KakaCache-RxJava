@@ -39,12 +39,13 @@ public class GsonDiskConverter implements IDiskConverter {
     }
 
     @Override
-    public void writer(OutputStream sink, Object data) {
+    public boolean writer(OutputStream sink, Object data) {
         try {
             String json = gson.toJson(data);
             byte[] bytes = json.getBytes();
             sink.write(bytes, 0, bytes.length);
             sink.flush();
+            return true;
         } catch (JsonIOException e) {
             LogUtils.log(e);
         } catch (JsonSyntaxException e) {
@@ -52,6 +53,7 @@ public class GsonDiskConverter implements IDiskConverter {
         } catch (IOException e) {
             LogUtils.log(e);
         }
+        return false;
     }
 
 }

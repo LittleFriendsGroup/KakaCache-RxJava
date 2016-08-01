@@ -49,8 +49,6 @@ public class CacheEntry implements Serializable, Cloneable {
      */
     @Column(COL_TARGET)
     private CacheTarget target;
-    // TODO 有待商讨
-//    private long size;
 
 
     CacheEntry(CacheEntry entry) {
@@ -87,8 +85,34 @@ public class CacheEntry implements Serializable, Cloneable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CacheEntry entry = (CacheEntry) o;
+
+        if (createTime != entry.createTime) return false;
+        if (lastUseTime != entry.lastUseTime) return false;
+        if (useCount != entry.useCount) return false;
+        if (expiryTime != entry.expiryTime) return false;
+        if (key != null ? !key.equals(entry.key) : entry.key != null) return false;
+        return target == entry.target;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key != null ? key.hashCode() : 0;
+        result = 31 * result + (int) (createTime ^ (createTime >>> 32));
+        result = 31 * result + (int) (lastUseTime ^ (lastUseTime >>> 32));
+        result = 31 * result + (int) (useCount ^ (useCount >>> 32));
+        result = 31 * result + (int) (expiryTime ^ (expiryTime >>> 32));
+        result = 31 * result + (target != null ? target.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "CacheEntry{" +
+        return "{" +
                 "key='" + key + '\'' +
                 ", createTime=" + createTime +
                 ", lastUseTime=" + lastUseTime +

@@ -15,7 +15,7 @@ public class UnlimitedDiskJournal extends BasicDiskJournal {
 
     // 永不清除有效的缓存（过期依旧会被清理）
     @Override
-    public String getLoseKey() throws CacheException {
+    public String getLoseKey() {
         return null;
     }
 

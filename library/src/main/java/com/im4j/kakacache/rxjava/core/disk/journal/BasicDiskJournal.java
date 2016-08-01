@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core.disk.journal;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
@@ -67,17 +66,19 @@ public abstract class BasicDiskJournal implements IDiskJournal {
     }
 
     @Override
-    public abstract String getLoseKey() throws CacheException;
+    public abstract String getLoseKey();
 
     @Override
-    public final void remove(String key) {
-        mLiteOrm.delete(new WhereBuilder(CacheEntry.class)
+    public final boolean remove(String key) {
+        int result = mLiteOrm.delete(new WhereBuilder(CacheEntry.class)
                 .where(CacheEntry.COL_KEY + " = ?", new String[]{"%"+key+"%"}));
+        return result > 0;
     }
 
     @Override
-    public final void clear() {
-        mLiteOrm.deleteAll(CacheEntry.class);
+    public final boolean clear() {
+        int result = mLiteOrm.deleteAll(CacheEntry.class);
+        return result >= 0;
     }
 
     @Override

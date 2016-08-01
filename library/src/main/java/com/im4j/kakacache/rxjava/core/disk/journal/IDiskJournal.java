@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core.disk.journal;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 
 import java.io.Closeable;
@@ -22,11 +21,11 @@ public interface IDiskJournal extends Closeable {
      * 获取准备丢弃的Key
      * @return 准备丢弃的Key（如存储空间不足时，需要清理）
      */
-    String getLoseKey() throws CacheException;
+    String getLoseKey();
 
-    void remove(String key);
+    boolean remove(String key);
 
-    void clear();
+    boolean clear();
 
     Collection<CacheEntry> snapshot();
 

@@ -17,7 +17,6 @@ import java.io.IOException;
  */
 public class FileDiskStorage implements IDiskStorage {
     private File mStorageDir;
-    private boolean mIsClose = true;
 
     /**
      * @param storageDir 磁盘存储根目录
@@ -27,11 +26,10 @@ public class FileDiskStorage implements IDiskStorage {
             throw new NotFoundException("‘storageDir’ not found.");
         }
         this.mStorageDir = storageDir;
-        this.mIsClose = false;
     }
 
     @Override
-    public FileInputStream load(String key) throws CacheException {
+    public FileInputStream load(String key) {
         if (Utils.isEmpty(key)) {
             return null;
         }
@@ -47,7 +45,7 @@ public class FileDiskStorage implements IDiskStorage {
     }
 
     @Override
-    public FileOutputStream create(String key) throws CacheException {
+    public FileOutputStream create(String key) {
         if (Utils.isEmpty(key)) {
             return null;
         }
@@ -70,32 +68,21 @@ public class FileDiskStorage implements IDiskStorage {
 
     @Override
     public void close() {
-        this.mIsClose = true;
+        // TODO Nothing
     }
 
     @Override
-    public boolean isClosed() {
-        return mIsClose;
+    public boolean remove(String key) {
+        return !Utils.isEmpty(key) && delete(new File(mStorageDir, key));
     }
 
     @Override
-    public void remove(String key) throws CacheException {
-        if (Utils.isEmpty(key)) {
-            return;
-        }
-        try {
-            delete(new File(mStorageDir, key));
-        } catch (IOException e) {
-            throw new CacheException(e);
-        }
-    }
-
-    @Override
-    public void clear() throws CacheException {
+    public boolean clear() {
         try {
             deleteContents(mStorageDir);
+            return true;
         } catch (IOException e) {
-            throw new CacheException(e);
+            return false;
         }
     }
 
@@ -119,14 +106,13 @@ public class FileDiskStorage implements IDiskStorage {
         return file.length();
     }
 
-    public void delete(File file) throws IOException {
+    public boolean delete(File file) {
         if (file == null) {
-            return;
+            return false;
         }
         // If delete() fails, make sure it's because the file didn't exist!
-        if (!file.delete() && file.exists()) {
-            throw new IOException("failed to delete " + file);
-        }
+        return file.delete() || !file.exists();
+
     }
 
     private void deleteContents(File directory) throws IOException {

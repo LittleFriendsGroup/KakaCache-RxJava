@@ -1,8 +1,7 @@
 package com.im4j.kakacache.rxjava.core.memory;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
-import com.im4j.kakacache.rxjava.core.Cache;
+import com.im4j.kakacache.rxjava.core.BasicCache;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 import com.im4j.kakacache.rxjava.core.memory.journal.IMemoryJournal;
@@ -14,7 +13,7 @@ import java.util.Collection;
  * 内存缓存
  * @version 0.1 king 2016-04
  */
-public final class MemoryCache extends Cache {
+public final class MemoryCache extends BasicCache {
 
     private final IMemoryStorage mStorage;
     private final IMemoryJournal mJournal;
@@ -30,19 +29,22 @@ public final class MemoryCache extends Cache {
 
 
     @Override
-    protected <T> T doLoad(String key) throws CacheException {
+    protected <T> T doLoad(String key) {
         return (T) mStorage.load(key);
     }
 
     @Override
-    protected <T> void doSave(String key, T value, int maxAge, CacheTarget target) throws CacheException {
+    protected <T> boolean doSave(String key, T value, int maxAge, CacheTarget target) {
         if (target == null || target == CacheTarget.NONE || target == CacheTarget.Disk) {
-            return;
+            return true;
         }
 
         // 写入缓存
-        mStorage.save(key, value);
-        mJournal.put(key, new CacheEntry(key, maxAge, target));
+        if (mStorage.save(key, value)) {
+            mJournal.put(key, new CacheEntry(key, maxAge, target));
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -61,18 +63,16 @@ public final class MemoryCache extends Cache {
      * @param key
      */
     @Override
-    protected void doRemove(String key) throws CacheException {
-        mStorage.remove(key);
-        mJournal.remove(key);
+    protected boolean doRemove(String key) {
+        return mStorage.remove(key) && mJournal.remove(key);
     }
 
     /**
      * 清空缓存
      */
     @Override
-    protected void doClear() throws CacheException {
-        mStorage.clear();
-        mJournal.clear();
+    protected boolean doClear() {
+        return mStorage.clear() && mJournal.clear();
     }
 
     @Override
@@ -81,7 +81,7 @@ public final class MemoryCache extends Cache {
     }
 
     @Override
-    public String getLoseKey() throws CacheException {
+    public String getLoseKey() {
         return mJournal.getLoseKey();
     }
 

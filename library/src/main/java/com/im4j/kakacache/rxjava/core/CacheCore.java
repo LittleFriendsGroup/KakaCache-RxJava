@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.disk.DiskCache;
 import com.im4j.kakacache.rxjava.core.disk.converter.IDiskConverter;
@@ -29,7 +28,7 @@ public class CacheCore {
     /**
      * 读取
      */
-    public <T> T load(String key) throws CacheException {
+    public <T> T load(String key) {
         if (memory != null) {
             T result = (T) memory.load(key);
             if (result != null) {
@@ -52,11 +51,9 @@ public class CacheCore {
      *
      * @param expires 有效期（单位：毫秒）
      */
-    public <T> void save(String key, T value, int expires, CacheTarget target) throws CacheException {
+    public <T> boolean save(String key, T value, int expires, CacheTarget target) {
         if (value == null) {
-            memory.remove(key);
-            disk.remove(key);
-            return;
+            return memory.remove(key) && disk.remove(key);
         }
 
         if (memory != null) {
@@ -66,8 +63,10 @@ public class CacheCore {
             memory.save(key, value, expires, target);
         }
         if (disk != null) {
-            disk.save(key, value, expires, target);
+            return disk.save(key, value, expires, target);
         }
+
+        return false;
     }
 
     /**
@@ -95,7 +94,7 @@ public class CacheCore {
      *
      * @param key
      */
-    public void remove(String key) throws CacheException {
+    public void remove(String key) {
         if (memory != null) {
             memory.remove(key);
         }
@@ -107,7 +106,7 @@ public class CacheCore {
     /**
      * 清空缓存
      */
-    public void clear() throws CacheException {
+    public void clear() {
         if (memory != null) {
             memory.clear();
         }

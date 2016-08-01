@@ -34,14 +34,16 @@ public class SerializableDiskConverter implements IDiskConverter {
     }
 
     @Override
-    public void writer(OutputStream sink, Object data) {
+    public boolean writer(OutputStream sink, Object data) {
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(sink);
             oos.writeObject(data);
             oos.flush(); //缓冲流
+            return true;
         } catch (IOException e) {
             LogUtils.log(e);
+            return false;
         } finally {
             Utils.close(oos);
         }

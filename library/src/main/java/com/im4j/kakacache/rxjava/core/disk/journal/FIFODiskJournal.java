@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core.disk.journal;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 import com.litesuits.orm.LiteOrm;
 import com.litesuits.orm.db.assit.QueryBuilder;
@@ -18,7 +17,7 @@ public class FIFODiskJournal extends BasicDiskJournal {
     }
 
     @Override
-    public String getLoseKey() throws CacheException {
+    public String getLoseKey() {
         QueryBuilder query = new QueryBuilder(CacheEntry.class);
         query.orderBy(CacheEntry.COL_CREATE_TIME);
         query.limit(0, 1);

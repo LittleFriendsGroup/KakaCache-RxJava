@@ -45,7 +45,7 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
     }
 
     @Override
-    public void put(String key, CacheEntry entry) {
+    public boolean put(String key, CacheEntry entry) {
         if (Utils.isEmpty(key) || entry == null) {
             throw new NullException("key == null || value == null");
         }
@@ -53,11 +53,10 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
         if (entry.isExpiry()) {
             entry.setLastUseTime(System.currentTimeMillis());
             entry.setUseCount(1);
-            mKeyValues.put(key, entry);
+            return mKeyValues.put(key, entry) != null;
         } else {
-            remove(key);
+            return remove(key);
         }
-        mKeyValues.put(key, entry);
     }
 
     @Override
@@ -71,20 +70,21 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
     }
 
     @Override
-    public abstract String getLoseKey() throws CacheException;
+    public abstract String getLoseKey();
 
     @Override
-    public void remove(String key) {
+    public boolean remove(String key) {
         if (Utils.isEmpty(key)) {
             throw new NullException("key == null");
         }
 
-        mKeyValues.remove(key);
+        return mKeyValues.remove(key) != null;
     }
 
     @Override
-    public void clear() {
+    public boolean clear() {
         mKeyValues.clear();
+        return true;
     }
 
     @Override

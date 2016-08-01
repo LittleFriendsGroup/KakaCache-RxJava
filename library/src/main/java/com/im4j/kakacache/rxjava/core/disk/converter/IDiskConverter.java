@@ -26,6 +26,6 @@ public interface IDiskConverter {
      * @param data
      * @return
      */
-    void writer(OutputStream sink, Object data);
+    boolean writer(OutputStream sink, Object data);
 
 }

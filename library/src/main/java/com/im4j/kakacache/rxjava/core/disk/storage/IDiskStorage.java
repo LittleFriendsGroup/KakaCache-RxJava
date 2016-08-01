@@ -1,7 +1,5 @@
 package com.im4j.kakacache.rxjava.core.disk.storage;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
-
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,13 +15,13 @@ public interface IDiskStorage extends Closeable {
      * @param key
      * @return
      */
-    InputStream load(String key) throws CacheException;
+    InputStream load(String key);
 
     /**
      * 创建数据槽
      * @param key
      */
-    OutputStream create(String key) throws CacheException;
+    OutputStream create(String key);
 
 
 
@@ -31,24 +29,18 @@ public interface IDiskStorage extends Closeable {
      * 关闭
      */
     @Override
-    void close() throws CacheException;
-
-    /**
-     * 是否已关闭
-     * @return
-     */
-    boolean isClosed();
+    void close();
 
     /**
      * 删除缓存
      * @param key
      */
-    void remove(String key) throws CacheException;
+    boolean remove(String key);
 
     /**
      * 清空缓存
      */
-    void clear() throws CacheException;
+    boolean clear();
 
     /**
      * 缓存总大小
