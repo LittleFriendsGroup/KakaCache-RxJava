@@ -13,17 +13,21 @@ import rx.schedulers.Schedulers;
  * @version alafighting 2016-07
  */
 public enum CacheStrategy {
-    /** 优先缓存 */
-    FirstCache{
+    /** 仅缓存 */
+    OnlyCache{
         @Override
         public <T> Observable<ResultData<T>> execute(String key, Observable<T> source) {
-            Observable<ResultData<T>> cache = loadCache(key);
-            Observable<ResultData<T>> remote = loadRemote(key, source);
-            return Observable.concat(cache, remote)
-                    .firstOrDefault(null, it -> it.data != null)
-                    .subscribeOn(Schedulers.io());
+            return loadCache(key);
         }
     },
+    /** 仅网络 */
+    OnlyRemote{
+        @Override
+        public <T> Observable<ResultData<T>> execute(String key, Observable<T> source) {
+            return loadRemote(key, source);
+        }
+    },
+
     /** 优先服务器 */
     FirstRemote{
         @Override

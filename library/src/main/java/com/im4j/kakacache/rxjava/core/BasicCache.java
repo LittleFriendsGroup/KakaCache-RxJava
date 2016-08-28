@@ -102,11 +102,11 @@ public abstract class BasicCache {
      * @return
      */
     public final boolean containsKey(String key) {
-        mLock.writeLock().lock();
+        mLock.readLock().lock();
         try {
             return doContainsKey(key);
         } finally {
-            mLock.writeLock().unlock();
+            mLock.readLock().unlock();
         }
     }
 

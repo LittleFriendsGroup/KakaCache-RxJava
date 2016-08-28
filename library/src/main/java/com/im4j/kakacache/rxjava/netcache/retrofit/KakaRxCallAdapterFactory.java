@@ -108,7 +108,7 @@ public class KakaRxCallAdapterFactory extends CallAdapter.Factory {
                     LogUtils.debug("fileName="+info.getKey());
 
                     if (info.getStrategy() == null) {
-                        info.setStrategy(CacheStrategy.FirstCache);
+                        info.setStrategy(CacheStrategy.OnlyRemote);
                     }
 
                     return callAdapter.doAdaptUnwrap(call)
