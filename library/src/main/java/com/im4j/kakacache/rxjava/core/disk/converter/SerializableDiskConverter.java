@@ -1,6 +1,6 @@
 package com.im4j.kakacache.rxjava.core.disk.converter;
 
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.IOException;
@@ -23,10 +23,8 @@ public class SerializableDiskConverter implements IDiskConverter {
         try {
             oin = new ObjectInputStream(source);
             value = oin.readObject();
-        } catch (IOException e) {
-            LogUtils.log(e);
-        } catch (ClassNotFoundException e) {
-            LogUtils.log(e);
+        } catch (IOException | ClassNotFoundException e) {
+            L.log(e);
         } finally {
             Utils.close(oin);
         }
@@ -42,7 +40,7 @@ public class SerializableDiskConverter implements IDiskConverter {
             oos.flush(); //缓冲流
             return true;
         } catch (IOException e) {
-            LogUtils.log(e);
+            L.log(e);
             return false;
         } finally {
             Utils.close(oos);

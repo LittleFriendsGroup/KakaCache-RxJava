@@ -1,11 +1,11 @@
 package com.im4j.kakacache.rxjava.manager;
 
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.core.CacheCore;
 import com.im4j.kakacache.rxjava.core.CacheTarget;
 
-import rx.Subscriber;
-import rx.exceptions.Exceptions;
+import io.reactivex.Observable;
 
 /**
  * RxJava模式缓存管理
@@ -13,37 +13,11 @@ import rx.exceptions.Exceptions;
  */
 public class RxCacheManager {
 
-    private static abstract class SimpleSubscribe<T> implements rx.Observable.OnSubscribe<T> {
-        @Override
-        public final void call(Subscriber<? super T> subscriber) {
-            try {
-                T data = execute();
-                if (!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(data);
-                }
-            } catch (Throwable e) {
-                LogUtils.log(e);
-                Exceptions.throwIfFatal(e);
-                if (!subscriber.isUnsubscribed()) {
-                    subscriber.onError(e);
-                }
-                return;
-            }
-
-            if (!subscriber.isUnsubscribed()) {
-                subscriber.onCompleted();
-            }
-        }
-        abstract T execute() throws Throwable;
-    }
-
-
     private CacheCore cache;
     private int defaultExpires;
 
     /**
      * 构造函数
-     * @param cache
      * @param defaultExpires 默认有效期（毫秒）
      */
     public RxCacheManager(CacheCore cache, int defaultExpires) {
@@ -54,61 +28,75 @@ public class RxCacheManager {
     /**
      * 读取
      */
-    public <T> rx.Observable<T> load(final String key) {
-        return rx.Observable.create(new SimpleSubscribe<T>() {
-            @Override
-            T execute() {
-                LogUtils.debug("loadCache  key="+key);
-                return cache.load(key);
+    public <T> Observable<T> load(final String key) {
+        return Observable.just(key).map(it -> {
+            L.debug("loadCache  key="+it);
+            try {
+                T result = cache.load(it);
+                if (result != null) {
+                    return result;
+                }
+            } catch (Throwable e) {
+                L.debug(e);
             }
+            throw new NotFoundException("load cache is null.");
         });
     }
 
     /**
      * 保存
      */
-    public <T> rx.Observable<Boolean> save(String key, T value) {
+    public <T> Observable<Boolean> save(String key, T value) {
         return save(key, value, defaultExpires, CacheTarget.MemoryAndDisk);
     }
     /**
      * 保存
-     * @param expires 有效期（单位：秒）
+     * @param expires 有效期（单位：毫秒）
      */
-    public <T> rx.Observable<Boolean> save(final String key, final T value, final int expires, final CacheTarget target) {
-        return rx.Observable.create(new SimpleSubscribe<Boolean>() {
-            @Override
-            Boolean execute() throws Throwable {
-                cache.save(key, value, expires, target);
+    public <T> Observable<Boolean> save(final String key, final T value, final int expires) {
+        return save(key, value, expires, CacheTarget.MemoryAndDisk);
+    }
+    /**
+     * 保存
+     * @param expires 有效期（单位：毫秒）
+     */
+    public <T> Observable<Boolean> save(String key, final T value, final int expires, final CacheTarget target) {
+        return Observable.just(key).map(it -> {
+            try {
+                cache.save(it, value, expires, target);
                 return true;
+            } catch (Exception e) {
+                L.debug(e);
+                return false;
             }
         });
     }
 
     /**
      * 是否包含
-     * @param key
-     * @return
      */
-    public rx.Observable<Boolean> containsKey(final String key) {
-        return rx.Observable.create(new SimpleSubscribe<Boolean>() {
-            @Override
-            Boolean execute() throws Throwable {
-                return cache.containsKey(key);
+    public Observable<Boolean> containsKey(final String key) {
+        return Observable.just(key).map(it -> {
+            try {
+                return cache.containsKey(it);
+            } catch (Exception e) {
+                L.debug(e);
+                return false;
             }
         });
     }
 
     /**
      * 删除缓存
-     * @param key
-     * // TODO return Boolean?
      */
-    public rx.Observable<Boolean> remove(final String key) {
-        return rx.Observable.create(new SimpleSubscribe<Boolean>() {
-            @Override
-            Boolean execute() throws Throwable {
+    public Observable<Boolean> remove(final String key) {
+        return Observable.just(key).map(it -> {
+            try {
                 cache.remove(key);
                 return true;
+            } catch (Exception e) {
+                L.debug(e);
+                return false;
             }
         });
     }
@@ -116,12 +104,14 @@ public class RxCacheManager {
     /**
      * 清空缓存
      */
-    public rx.Observable<Boolean> clear() {
-        return rx.Observable.create(new SimpleSubscribe<Boolean>() {
-            @Override
-            Boolean execute() throws Throwable {
+    public Observable<Boolean> clear() {
+        return Observable.just(0).map(it -> {
+            try {
                 cache.clear();
                 return true;
+            } catch (Exception e) {
+                L.debug(e);
+                return false;
             }
         });
     }

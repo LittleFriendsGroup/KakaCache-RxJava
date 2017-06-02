@@ -34,7 +34,7 @@ public abstract class BasicDiskJournal implements IDiskJournal {
         CacheEntry entry = mLiteOrm.queryById(key, CacheEntry.class);
         if (entry != null) {
             // 有效期内，才记录最后使用时间
-            if (entry.isExpiry()) {
+            if (!entry.isExpiry()) {
                 entry.setLastUseTime(System.currentTimeMillis());
                 entry.setUseCount(entry.getUseCount() + 1);
                 mLiteOrm.update(entry);
@@ -50,7 +50,7 @@ public abstract class BasicDiskJournal implements IDiskJournal {
         if (Utils.isEmpty(key) || entry == null) {
             throw new NullException("key == null || value == null");
         }
-        if (entry.isExpiry()) {
+        if (!entry.isExpiry()) {
             entry.setLastUseTime(System.currentTimeMillis());
             entry.setUseCount(1);
             mLiteOrm.save(entry);
@@ -71,7 +71,7 @@ public abstract class BasicDiskJournal implements IDiskJournal {
     @Override
     public final boolean remove(String key) {
         int result = mLiteOrm.delete(new WhereBuilder(CacheEntry.class)
-                .where(CacheEntry.COL_KEY + " = ?", new String[]{"%"+key+"%"}));
+                .where(CacheEntry.COL_KEY + " = ?", "%"+key+"%"));
         return result > 0;
     }
 

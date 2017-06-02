@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public abstract class BasicCache {
 
-    protected final long mMaxSize;
-    protected final long mMaxQuantity;
+    private final long mMaxSize;
+    private final long mMaxQuantity;
     private final ReadWriteLock mLock = new ReentrantReadWriteLock();
 
     public BasicCache(long maxSize, long maxQuantity) {
@@ -24,13 +24,9 @@ public abstract class BasicCache {
 
     /**
      * 读取
-     * @param key
-     * @param <T>
-     * @return
      */
     public final <T> T load(String key) {
         Utils.checkNotNull(key);
-
         if (!containsKey(key)) {
             return null;
         }
@@ -44,23 +40,34 @@ public abstract class BasicCache {
         mLock.readLock().lock();
         try {
             // 读取缓存
-            return doLoad(key);
+            T value = doLoad(key);
+            return ensureTypeMatching(value);
         } finally {
             mLock.readLock().unlock();
         }
     }
 
     /**
+     * 确保类型是匹配的
+     * @return 如果最终类型和读取的类型不匹配，则返回null
+     */
+    @SuppressWarnings("unchecked")
+    private static <T> T ensureTypeMatching(T value) {
+        if (value == null) {
+            return null;
+        }
+        // TODO 检查类型是否匹配，避免出现ClassCastException
+        return value;
+    }
+
+    /**
      * 读取
-     * @param key
-     * @param <T>
-     * @return
      */
     protected abstract <T> T doLoad(String key);
 
     /**
      * 保存
-     * @param maxAge 最大有效期时长（单位：秒）
+     * @param maxAge 最大有效期时长（单位：毫秒）
      */
     public final <T> boolean save(String key, T value, int maxAge, CacheTarget target) {
         Utils.checkNotNull(key);
@@ -98,8 +105,6 @@ public abstract class BasicCache {
 
     /**
      * 是否包含
-     * @param key
-     * @return
      */
     public final boolean containsKey(String key) {
         mLock.readLock().lock();
@@ -112,7 +117,6 @@ public abstract class BasicCache {
 
     /**
      * 删除缓存
-     * @param key
      */
     public final boolean remove(String key) {
         mLock.writeLock().lock();
@@ -137,14 +141,11 @@ public abstract class BasicCache {
 
     /**
      * 是否包含
-     * @param key
-     * @return
      */
     protected abstract boolean doContainsKey(String key);
 
     /**
      * 删除缓存
-     * @param key
      */
     protected abstract boolean doRemove(String key);
 

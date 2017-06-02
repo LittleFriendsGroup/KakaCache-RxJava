@@ -1,10 +1,12 @@
 package com.im4j.kakacache.rxjava.common.utils;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
 import com.im4j.kakacache.rxjava.common.exception.ArgumentException;
-import com.im4j.kakacache.rxjava.common.exception.InstanceException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
 
 import java.io.Closeable;
@@ -55,14 +57,6 @@ public final class Utils {
     }
 
 
-    public static void checkOffsetAndCount(int arrayLength, int offset, int count) {
-        if ((offset | count) < 0 || offset > arrayLength || arrayLength - offset < count) {
-            throw new ArrayIndexOutOfBoundsException("length=" + arrayLength
-                    + "; regionStart=" + offset
-                    + "; regionLength=" + count);
-        }
-    }
-
     public static Class<?> getRawType(Type type) {
         if (type == null) throw new NullPointerException("type == null");
 
@@ -96,20 +90,8 @@ public final class Utils {
                 + "GenericArrayType, but <" + type + "> is of type " + type.getClass().getName());
     }
 
-    public static <T> T newInstance(Class<T> clazz) {
-        try {
-            return clazz.newInstance();
-        } catch (InstantiationException e) {
-            throw new InstanceException(e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw new InstanceException(e.getMessage());
-        }
-    }
-
     /**
      * 根据Request生成哈希值
-     * @param request
-     * @return
      */
     public static String getHash(Request request) {
         StringBuilder str = new StringBuilder();
@@ -117,7 +99,7 @@ public final class Utils {
         str.append(request.method());
         str.append(']');
         str.append('[');
-        str.append(request.url());
+        str.append(request.url().toString());
         str.append(']');
 
         try {
@@ -125,7 +107,7 @@ public final class Utils {
             request.body().writeTo(buffer);
             str.append(buffer.readByteString().sha1().hex());
         } catch (IOException e) {
-            LogUtils.log(e);
+            L.log(e);
             return "";
         }
 
@@ -137,43 +119,66 @@ public final class Utils {
 
 
 
-    public static final String SEPARATOR = File.separator;
+
     /**
-     * 获取缓存目录路径
-     * <p><b>
-     * ！注意：若不存在，则返回null
-     * </b></p>
-     * @param context
-     * @return 返回:/storage/sdcard0/Android/data/you_packageName/cache/
+     * 获取外部缓存目录
      */
-    public static File getStorageCacheDir(Context context) {
-        if (!canUseSDCard()) {
-            return getDataCacheDir(context);
+    public static File getExternalCacheDir(Context context) {
+        File cacheDir = context.getExternalCacheDir();
+        if (cacheDir != null) {
+            cacheDir.mkdirs();
         }
-
-        File path = Environment.getExternalStorageDirectory();
-        if (path == null) {
-            return getDataCacheDir(context);
-        }
-
-        return new File(path.getAbsolutePath() + SEPARATOR + "Android" + SEPARATOR + "data" + SEPARATOR
-                + context.getPackageName() + SEPARATOR + "cache" + SEPARATOR);
-    }
-    static File getDataCacheDir(Context context) {
-        return context.getCacheDir();
+        return cacheDir;
     }
 
     /**
-     * SDCard是否可用
-     * <p>PS：一定存在</p>
-     * @return
+     * 获取APP缓存目录
      */
-    public static boolean canUseSDCard() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // 是否可写
-            return Environment.getExternalStorageDirectory().canWrite();
+    public static File getCacheDir(Context context) {
+        File appCacheDir = context.getCacheDir();
+        if(appCacheDir == null) {
+            String cacheDirPath = "/data/data/" + context.getPackageName() + "/cache/";
+            appCacheDir = new File(cacheDirPath);
         }
-        return false;
+        return appCacheDir;
+    }
+
+    /**
+     * 获取可用的缓存目录
+     * @tips 优先外置存储
+     */
+    public static File getUsableCacheDir(Context context) {
+        if (hasExternalStorage(context)) {
+            return getExternalCacheDir(context);
+        } else {
+            return getCacheDir(context);
+        }
+    }
+
+    /**
+     * 获取可用的缓存目录
+     * @param child 子目录
+     * @tips 优先外置存储
+     */
+    public static File getUsableCacheDir(Context context, String child) {
+        File dir = getUsableCacheDir(context);
+        if (dir == null) {
+            return null;
+        }
+        return new File(dir, child);
+    }
+
+
+    /**
+     * 是否有可用的外置存储
+     */
+    public static boolean hasExternalStorage(Context context) {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                && hasPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+    private static boolean hasPermission(Context context, @NonNull String permission) {
+        int perm = context.checkCallingOrSelfPermission(permission);
+        return perm == PackageManager.PERMISSION_GRANTED;
     }
 
     public static void close(Closeable close) {

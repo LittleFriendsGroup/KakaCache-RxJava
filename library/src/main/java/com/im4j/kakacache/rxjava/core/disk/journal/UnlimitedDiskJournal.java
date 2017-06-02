@@ -1,6 +1,5 @@
 package com.im4j.kakacache.rxjava.core.disk.journal;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.litesuits.orm.LiteOrm;
 
 /**

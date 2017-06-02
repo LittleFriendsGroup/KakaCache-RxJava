@@ -1,7 +1,7 @@
 package com.im4j.kakacache.rxjava.core.memory.journal;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NullException;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.CacheEntry;
 
@@ -34,7 +34,7 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
         CacheEntry entry = mKeyValues.get(key);
         if (entry != null) {
             // 有效期内，才记录最后使用时间
-            if (entry.isExpiry()) {
+            if (!entry.isExpiry()) {
                 entry.setLastUseTime(System.currentTimeMillis());
                 entry.setUseCount(entry.getUseCount() + 1);
             }
@@ -50,7 +50,8 @@ public abstract class BasicMemoryJournal implements IMemoryJournal {
             throw new NullException("key == null || value == null");
         }
 
-        if (entry.isExpiry()) {
+        L.debug("memory journal put "+key);
+        if (!entry.isExpiry()) {
             entry.setLastUseTime(System.currentTimeMillis());
             entry.setUseCount(1);
             return mKeyValues.put(key, entry) != null;

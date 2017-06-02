@@ -2,7 +2,7 @@ package com.im4j.kakacache.rxjava.core.memory.storage;
 
 import android.graphics.Bitmap;
 
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.MemorySizeOf;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
@@ -64,7 +64,7 @@ public class SimpleMemoryStorage implements IMemoryStorage {
         for (Object value : mStorageMap.values()) {
             totalSize += countSize(value);
         }
-        LogUtils.debug(totalSize);
+        L.debug("memory total size = "+totalSize);
         return totalSize;
     }
 
@@ -76,21 +76,21 @@ public class SimpleMemoryStorage implements IMemoryStorage {
         // FIXME 更优良的内存大小算法
         long size = 1;
         if (value instanceof MemorySizeOf.SizeOf) {
-            LogUtils.debug("SizeOf");
+            //L.debug("SizeOf");
             size = MemorySizeOf.sizeOf((MemorySizeOf.SizeOf) value);
         } else if (value instanceof Bitmap) {
-            LogUtils.debug("Bitmap");
+            //L.debug("Bitmap");
             size = MemorySizeOf.sizeOf((Bitmap) value);
         } else if (value instanceof Iterable) {
-            LogUtils.debug("Iterable");
+            //L.debug("Iterable");
             for (Object item : ((Iterable) value)) {
                 size += countSize(item);
             }
         } else if (value instanceof Serializable) {
-            LogUtils.debug("Serializable");
+            //L.debug("Serializable");
             size = MemorySizeOf.sizeOf((Serializable) value);
         }
-        LogUtils.debug("size="+size+" value="+value);
+        //L.debug("size="+size+" value="+value);
         return size;
     }
 

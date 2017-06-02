@@ -1,10 +1,12 @@
 package com.im4j.kakacache.rxjava.core;
 
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 import com.im4j.kakacache.rxjava.core.disk.DiskCache;
 import com.im4j.kakacache.rxjava.core.disk.converter.IDiskConverter;
 import com.im4j.kakacache.rxjava.core.disk.journal.IDiskJournal;
 import com.im4j.kakacache.rxjava.core.disk.storage.IDiskStorage;
+import com.im4j.kakacache.rxjava.core.memory.CloneUtils;
 import com.im4j.kakacache.rxjava.core.memory.MemoryCache;
 import com.im4j.kakacache.rxjava.core.memory.journal.IMemoryJournal;
 import com.im4j.kakacache.rxjava.core.memory.storage.IMemoryStorage;
@@ -30,14 +32,21 @@ public class CacheCore {
      */
     public <T> T load(String key) {
         if (memory != null) {
-            T result = (T) memory.load(key);
+            T result = memory.load(key);
+            L.debug("load memory cache key="+key+", value="+result);
             if (result != null) {
-                return result;
+                // FIXME 通过标识符判断是否被篡改
+                try {
+                    return CloneUtils.deepClone(result);
+                } catch (Exception e) {
+                    L.debug(e);
+                }
             }
         }
 
         if (disk != null) {
             T result = disk.load(key);
+            L.debug("load disk cache key="+key+", value="+result);
             if (result != null) {
                 return result;
             }
@@ -57,10 +66,15 @@ public class CacheCore {
         }
 
         if (memory != null) {
-            // TODO value = value.clone() 避免内存存储对象引用？
-            // TODO clone拷贝造成双倍内存开销？
-            // TODO 被缓存的对象，一般不做修改，只做读取
-            memory.save(key, value, expires, target);
+            // FIXME 通过标识符判断是否被篡改
+            T cloneValue = null;
+            try {
+                cloneValue = CloneUtils.deepClone(value);
+                value = cloneValue;
+            } catch (Exception e) {
+                L.debug(e);
+            }
+            memory.save(key, cloneValue, expires, target);
         }
         if (disk != null) {
             return disk.save(key, value, expires, target);
@@ -71,9 +85,6 @@ public class CacheCore {
 
     /**
      * 是否包含
-     *
-     * @param key
-     * @return
      */
     public boolean containsKey(String key) {
         if (memory != null) {
@@ -91,8 +102,6 @@ public class CacheCore {
 
     /**
      * 删除缓存
-     *
-     * @param key
      */
     public void remove(String key) {
         if (memory != null) {

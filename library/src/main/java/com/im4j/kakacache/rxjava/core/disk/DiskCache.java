@@ -37,11 +37,7 @@ public final class DiskCache extends BasicCache {
 
     /**
      * 读取
-     * @param key
-     * @param <T>
-     * @return
      */
-
     @Override
     protected <T> T doLoad(String key) {
         // 读取缓存

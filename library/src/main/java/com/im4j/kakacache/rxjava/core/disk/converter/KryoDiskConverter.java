@@ -3,7 +3,7 @@ package com.im4j.kakacache.rxjava.core.disk.converter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.im4j.kakacache.rxjava.common.exception.Exception;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.InputStream;
@@ -41,7 +41,8 @@ public class KryoDiskConverter implements IDiskConverter {
             output = new Output(sink);
             kryo.writeClassAndObject(output, data);
             return true;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            L.debug(e);
             return false;
         } finally {
             Utils.close(output);

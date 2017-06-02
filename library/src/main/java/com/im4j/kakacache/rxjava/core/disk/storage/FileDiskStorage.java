@@ -1,8 +1,7 @@
 package com.im4j.kakacache.rxjava.core.disk.storage;
 
-import com.im4j.kakacache.rxjava.common.exception.CacheException;
 import com.im4j.kakacache.rxjava.common.exception.NotFoundException;
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.File;
@@ -23,7 +22,7 @@ public class FileDiskStorage implements IDiskStorage {
      */
     public FileDiskStorage(File storageDir) {
         if (storageDir == null || !storageDir.isDirectory()) {
-            throw new NotFoundException("‘storageDir’ not found.");
+            throw new NotFoundException("'"+storageDir+"' not found.");
         }
         this.mStorageDir = storageDir;
     }
@@ -52,10 +51,11 @@ public class FileDiskStorage implements IDiskStorage {
         File file = new File(mStorageDir, key);
         if (!exists(file) || file.isDirectory()) {
             try {
-                LogUtils.debug("createNewFile => "+file);
+                L.debug("createNewFile => "+file);
+                file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                LogUtils.log(e);
+                L.log(e);
                 return null;
             }
         }
@@ -93,7 +93,11 @@ public class FileDiskStorage implements IDiskStorage {
 
     @Override
     public long getTotalQuantity() {
-        return mStorageDir.list().length;
+        String[] files = mStorageDir.list();
+        if (files == null) {
+            return 0;
+        }
+        return files.length;
     }
 
 

@@ -13,18 +13,11 @@ public interface IDiskConverter {
 
     /**
      * 读取
-     *
-     * @param source
-     * @return
      */
     Object load(InputStream source, Type type);
 
     /**
      * 写入
-     *
-     * @param sink
-     * @param data
-     * @return
      */
     boolean writer(OutputStream sink, Object data);
 

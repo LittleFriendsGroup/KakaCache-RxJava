@@ -4,7 +4,7 @@
 ## 如何使用
 
 ### 准备Retrofit
-```java
+```
 retrofit = new Retrofit.Builder()
     .baseUrl("https://api.github.com/")
     .addConverterFactory(KakaCache.gsonConverter())
@@ -13,14 +13,14 @@ retrofit = new Retrofit.Builder()
 ```
 
 ### 定义接口
-```java
+```
 @GET("users/{user}/repos")
 @CACHE(value = "custom_key_listRepos", strategy = CacheAndRemoteStrategy.class)
 rx.Observable<ResultData<List<GithubRepoEntity>>> listReposForKaka(@Path("user") String user);
 ```
 
 ### 调用接口
-```java
+```
 service.listReposForKaka("alafighting")
     .subscribeOn(Schedulers.io())
     .observeOn(AndroidSchedulers.mainThread())
@@ -34,7 +34,7 @@ service.listReposForKaka("alafighting")
 ### or 太麻烦？给你`一步到位`！！
 
 在原有代码的基础上，仅需一行代码搞定
-```java
+```
 .compose(KakaCache.transformer(KEY_CACHE, new FirstCacheStrategy()))
 ```
 

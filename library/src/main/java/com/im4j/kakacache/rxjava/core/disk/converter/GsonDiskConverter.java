@@ -3,7 +3,7 @@ package com.im4j.kakacache.rxjava.core.disk.converter;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.im4j.kakacache.rxjava.common.utils.LogUtils;
+import com.im4j.kakacache.rxjava.common.utils.L;
 import com.im4j.kakacache.rxjava.common.utils.Utils;
 
 import java.io.IOException;
@@ -29,9 +29,9 @@ public class GsonDiskConverter implements IDiskConverter {
         try {
             value = gson.fromJson(new InputStreamReader(source), type);
         } catch (JsonIOException e) {
-            LogUtils.log(e);
+            L.log(e);
         } catch (JsonSyntaxException e) {
-            LogUtils.log(e);
+            L.log(e);
         } finally {
             Utils.close(source);
         }
@@ -47,11 +47,11 @@ public class GsonDiskConverter implements IDiskConverter {
             sink.flush();
             return true;
         } catch (JsonIOException e) {
-            LogUtils.log(e);
+            L.log(e);
         } catch (JsonSyntaxException e) {
-            LogUtils.log(e);
+            L.log(e);
         } catch (IOException e) {
-            LogUtils.log(e);
+            L.log(e);
         }
         return false;
     }

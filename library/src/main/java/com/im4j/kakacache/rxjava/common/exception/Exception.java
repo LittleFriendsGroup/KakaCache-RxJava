@@ -4,7 +4,7 @@ package com.im4j.kakacache.rxjava.common.exception;
  * 异常基类
  * @version 0.1 king 2016-03
  */
-public class Exception extends RuntimeException {
+class Exception extends RuntimeException {
 
     public Exception() {
     }

@@ -2,7 +2,6 @@ package com.im4j.kakacache.rxjava.common.utils;
 
 import android.graphics.Bitmap;
 
-import com.im4j.kakacache.rxjava.common.exception.Exception;
 import com.im4j.kakacache.rxjava.common.exception.NotImplementException;
 
 import java.io.ByteArrayOutputStream;
@@ -41,7 +40,7 @@ public final class MemorySizeOf {
     /**
      * 计算大小
      */
-    public static long sizeOf(Serializable serial) throws Exception {
+    public static long sizeOf(Serializable serial) throws NotImplementException {
         if (serial == null) {
             return 0;
         }
@@ -60,7 +59,7 @@ public final class MemorySizeOf {
         } catch (NotSerializableException e) {
             throw new NotImplementException(e.getMessage() + " does not implement the MemorySizeOf.SizeOf.");
         } catch (IOException e) {
-            LogUtils.log(e);
+            L.log(e);
         } finally {
             Utils.close(oos);
             Utils.close(baos);

@@ -23,7 +23,7 @@ public class CacheEntry implements Serializable, Cloneable {
      */
     @PrimaryKey(AssignType.BY_MYSELF)
     @Column(COL_KEY)
-    private final String key;
+    private String key;
     /**
      * 创建时间
      */
@@ -50,7 +50,8 @@ public class CacheEntry implements Serializable, Cloneable {
     @Column(COL_TARGET)
     private CacheTarget target;
 
-
+    public CacheEntry() {
+    }
     CacheEntry(CacheEntry entry) {
         this.key = entry.key;
         this.createTime = entry.createTime;
